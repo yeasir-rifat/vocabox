@@ -23,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -64,6 +65,7 @@ private const val SHEET_FRACTION = 0.70f
  * (or the content, when it is already at its top) down. Swiping left or right moves to the next or
  * previous word; the counter in the handle shows where you are.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordSheet(
     words: List<WordEntity>,
