@@ -37,6 +37,10 @@ class AppPreferences @Inject constructor(
 ) {
     private object Keys {
         val SEED_VERSION = intPreferencesKey("seed_version")
+        val ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
+        val REMOTE_ACTIVE = booleanPreferencesKey("remote_words_active")
+        val REMOTE_STAMP = longPreferencesKey("remote_words_stamp")
+        val LAST_SYNC = longPreferencesKey("remote_last_sync")
         val DAILY_GOAL = intPreferencesKey("daily_goal")
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val REMINDER_ENABLED = booleanPreferencesKey("reminder_enabled")
@@ -58,6 +62,33 @@ class AppPreferences @Inject constructor(
 
     suspend fun setSeedVersion(version: Int) {
         context.appDataStore.edit { it[Keys.SEED_VERSION] = version }
+    }
+
+    /** False until the intro slides were finished or skipped once. */
+    val onboardingDone: Flow<Boolean> = context.appDataStore.data.map { it[Keys.ONBOARDING_DONE] ?: false }
+
+    suspend fun setOnboardingDone() {
+        context.appDataStore.edit { it[Keys.ONBOARDING_DONE] = true }
+    }
+
+    /** True once a word list downloaded from Firebase has been imported. The bundled list is then never re-imported. */
+    val remoteWordsActive: Flow<Boolean> = context.appDataStore.data.map { it[Keys.REMOTE_ACTIVE] ?: false }
+
+    /** Upload stamp (ms) of the Firestore word list that was last imported. */
+    val remoteWordsStamp: Flow<Long> = context.appDataStore.data.map { it[Keys.REMOTE_STAMP] ?: 0L }
+
+    /** When a sync last finished successfully (ms since epoch), 0 if never. */
+    val lastSyncMillis: Flow<Long> = context.appDataStore.data.map { it[Keys.LAST_SYNC] ?: 0L }
+
+    suspend fun setRemoteWordsActive(active: Boolean) {
+        context.appDataStore.edit { it[Keys.REMOTE_ACTIVE] = active }
+    }
+
+    suspend fun setRemoteSyncResult(stamp: Long, syncedAt: Long) {
+        context.appDataStore.edit {
+            it[Keys.REMOTE_STAMP] = stamp
+            it[Keys.LAST_SYNC] = syncedAt
+        }
     }
 
     /** Cards to answer per day to keep the streak. */

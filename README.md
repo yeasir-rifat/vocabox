@@ -6,7 +6,7 @@ Account login is planned and not part of this version.
 
 ## Build
 - JDK 17, Android SDK 35.
-- Fonts (DM Sans, Noto Serif Bengali) are not stored in git. The Gradle task `downloadFonts` fetches them
+- Fonts (DM Sans) are not stored in git. The Gradle task `downloadFonts` fetches them
   automatically on the first build (needs `bash`, `curl`, `jq` and network access). To do it by hand:
   `bash scripts/download_fonts.sh`.
 - This repo has no Gradle wrapper jar. Use an installed Gradle 8.9 (`gradle :app:assembleDebug`), open the
@@ -48,3 +48,11 @@ repositories and the words.json importer, `worker/` daily word notification.
 Brand palette from the app icon (maroon `#A44A49`, cream `#FBF7F2`, espresso `#1A1211`, gold accent), explicit type
 scale with generous line heights for Bangla, spacing tokens in `ui/theme/Spacing.kt`, one icon family in
 `ui/components/AppIcons.kt`, shared components in `ui/components`.
+
+## Release APK (GitHub Actions)
+
+`main`-এ push করলেই workflow টেস্ট চালিয়ে R8-minified release APK বানায়, সাইন করে, `apksigner` দিয়ে যাচাই করে
+এবং **Releases** পেজে `Vocabox-vX.Y.Z.apk` + `.sha256` আপলোড করে। কিছু সেট না করলেও কাজ করে (কী নিজে বানিয়ে repo cache-এ রাখে)।
+
+স্থায়ী নিরাপদ কী চাইলে একবার keystore বানিয়ে এই Secrets দিন: `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`
+(`keytool -genkeypair -v -keystore vocabulary.jks -alias vocabox -keyalg RSA -keysize 4096 -validity 36500` তারপর `base64 -w0 vocabulary.jks`)।

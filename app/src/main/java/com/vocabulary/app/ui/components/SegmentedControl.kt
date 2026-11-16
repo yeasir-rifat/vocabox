@@ -3,6 +3,7 @@ package com.vocabulary.app.ui.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -15,14 +16,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import com.vocabulary.app.ui.theme.Spacing
 
-/** Equal-width options in a rounded track; the chosen one is filled. */
+/**
+ * Equal-width options in a rounded track; the chosen one is filled. Each option is a 48dp touch
+ * target (Spacing.Target); the filled pill inside it is 40dp, so the track still measures 48dp.
+ */
 @Composable
 fun <T> SegmentedControl(
     options: List<T>,
@@ -36,7 +42,7 @@ fun <T> SegmentedControl(
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(4.dp),
+            .padding(horizontal = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         options.forEach { option ->
@@ -55,18 +61,32 @@ fun <T> SegmentedControl(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .heightIn(min = 40.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(background)
-                    .selectable(selected = isSelected, role = Role.RadioButton, onClick = { onSelect(option) }),
+                    .heightIn(min = Spacing.Target)
+                    .selectable(
+                        selected = isSelected,
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        role = Role.RadioButton,
+                        onClick = { onSelect(option) }
+                    )
+                    .padding(vertical = 4.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = label(option),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = content,
-                    maxLines = 1
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = Spacing.Target - 8.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(background),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = label(option),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = content,
+                        maxLines = 1
+                    )
+                }
             }
         }
     }

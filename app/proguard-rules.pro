@@ -8,3 +8,13 @@
 -keepclasseswithmembers class com.vocabulary.app.data.seed.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
+
+# Release hardening: drop debug logging and hide source file names in stack traces.
+-assumenosideeffects class android.util.Log {
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
+}
+-renamesourcefileattribute SourceFile
+-keepattributes SourceFile,LineNumberTable
+-repackageclasses ''

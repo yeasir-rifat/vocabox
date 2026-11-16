@@ -18,6 +18,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -34,6 +35,8 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -73,10 +76,9 @@ import com.vocabulary.app.data.model.WordType
 import com.vocabulary.app.ui.components.AppIcons
 import com.vocabulary.app.ui.components.SegmentedControl
 import com.vocabulary.app.ui.components.label
-import com.vocabulary.app.ui.components.levelLabel
 import com.vocabulary.app.ui.theme.Spacing
 
-/** What the list is showing, without the word count: "Unread · A–Z · Hard · B C M". */
+/** What the list is showing, without the word count: "Unread · A–Z · B C M". */
 fun ListOptions.summaryParts(filters: WordFilters = WordFilters()): List<String> = buildList {
     when (read) {
         ReadFilter.READ -> add("Read")
@@ -85,7 +87,6 @@ fun ListOptions.summaryParts(filters: WordFilters = WordFilters()): List<String>
     }
     if (favouriteOnly) add("Favourites")
     type?.let { add(it.label()) }
-    level?.let { add(levelLabel(it)) }
     add(if (order == WordOrder.A_TO_Z) "A\u2013Z" else "Random")
     if (letters.isNotEmpty()) add(letters.sorted().joinToString(" "))
 }
@@ -142,7 +143,6 @@ fun ListOptionsSidebar(
     onStripChange: (Boolean) -> Unit,
     onOptionsChange: (ListOptions) -> Unit,
     onTypeSelected: (WordType?) -> Unit,
-    onLevelSelected: (Int?) -> Unit,
     onShuffleAgain: () -> Unit,
     onReset: () -> Unit,
     onClose: () -> Unit,
@@ -154,7 +154,7 @@ fun ListOptionsSidebar(
 
     val screenWidth = LocalConfiguration.current.screenWidthDp
     val panelWidth = minOf(screenWidth * 0.88f, 380f).dp
-    val panelShape = RoundedCornerShape(topStart = 24.dp, bottomStart = 24.dp)
+    val panelShape = RectangleShape
 
     Box(modifier = modifier.fillMaxSize()) {
         AnimatedVisibility(visible = visible, enter = fadeIn(tween(220)), exit = fadeOut(tween(180))) {
@@ -207,29 +207,6 @@ fun ListOptionsSidebar(
                             .padding(horizontal = Spacing.Content, vertical = Spacing.Compact),
                         verticalArrangement = Arrangement.spacedBy(Spacing.Section)
                     ) {
-                        SettingsGroup("Filter by") {
-                            DropdownSelector(
-                                title = "Type",
-                                selected = filters.type,
-                                options = listOf<Pair<WordType?, String>>(null to "All types") +
-                                    WordType.entries.map { it to it.label() },
-                                onSelected = onTypeSelected
-                            )
-                            DropdownSelector(
-                                title = "Level",
-                                selected = filters.level,
-                                options = listOf<Pair<Int?, String>>(null to "All levels") +
-                                    listOf(1, 2, 3).map { it to levelLabel(it) },
-                                onSelected = onLevelSelected
-                            )
-                            LetterPicker(
-                                selected = options.letters,
-                                available = availableLetters,
-                                onToggle = onToggleLetter,
-                                onClear = onClearLetters
-                            )
-                        }
-
                         SettingsGroup("Show") {
                             SegmentedControl(
                                 options = ReadFilter.entries.toList(),
@@ -243,13 +220,31 @@ fun ListOptionsSidebar(
                                 },
                                 onSelect = { onOptionsChange(options.copy(read = it)) }
                             )
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             FavouriteRow(
                                 checked = options.favouriteOnly,
                                 onCheckedChange = { onOptionsChange(options.copy(favouriteOnly = it)) }
                             )
                         }
 
-                        SettingsGroup("Order") {
+                        SettingsGroup("Filter by") {
+                            DropdownSelector(
+                                title = "Type",
+                                selected = filters.type,
+                                options = listOf<Pair<WordType?, String>>(null to "All types") +
+                                    WordType.entries.map { it to it.label() },
+                                onSelected = onTypeSelected
+                            )
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            LetterPicker(
+                                selected = options.letters,
+                                available = availableLetters,
+                                onToggle = onToggleLetter,
+                                onClear = onClearLetters
+                            )
+                        }
+
+                        SettingsGroup("Order and amount") {
                             SegmentedControl(
                                 options = WordOrder.entries.toList(),
                                 selected = options.order,
@@ -265,15 +260,21 @@ fun ListOptionsSidebar(
                                 }
                             )
                             if (options.order == WordOrder.RANDOM) {
-                                TextButton(onClick = onShuffleAgain) {
+                                TextButton(
+                                    onClick = onShuffleAgain,
+                                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                                ) {
                                     Icon(AppIcons.Shuffle, contentDescription = null, modifier = Modifier.size(18.dp))
                                     Spacer(Modifier.width(8.dp))
                                     Text("Shuffle again")
                                 }
                             }
-                        }
-
-                        SettingsGroup("Number of words") {
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            Text(
+                                text = "Number of words",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                             CountPicker(
                                 count = options.count,
                                 onCountChange = { onOptionsChange(options.copy(count = it)) }
@@ -282,18 +283,12 @@ fun ListOptionsSidebar(
 
                         if (showAppearance) {
                             SettingsGroup("Appearance") {
-                                FieldLabel("How a word opens")
                                 WordView.entries.forEach { view ->
                                     AppearanceRow(
                                         title = when (view) {
                                             WordView.DETAILS -> "Word Details"
                                             WordView.POPUP -> "Popup Modal"
                                             WordView.SHEET -> "Bottom Popup"
-                                        },
-                                        subtitle = when (view) {
-                                            WordView.DETAILS -> "Opens the full word page"
-                                            WordView.POPUP -> "A card in the middle of the screen"
-                                            WordView.SHEET -> "A sheet from the bottom, swipe between words"
                                         },
                                         selected = options.wordView == view,
                                         onClick = { onOptionsChange(options.copy(wordView = view)) }
@@ -390,7 +385,7 @@ private fun ResultLine(options: ListOptions, filters: WordFilters, resultCount: 
 
 /** A labelled group: small spaced capitals above a soft card. */
 @Composable
-private fun SettingsGroup(title: String, content: @Composable () -> Unit) {
+private fun SettingsGroup(title: String, content: @Composable ColumnScope.() -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = title.uppercase(),
@@ -410,18 +405,9 @@ private fun SettingsGroup(title: String, content: @Composable () -> Unit) {
     }
 }
 
-@Composable
-private fun FieldLabel(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-}
-
 /** A rounded pill option. Selected pills are filled, the others have a hairline outline. */
 @Composable
-private fun Pill(text: String, selected: Boolean, onClick: () -> Unit) {
+private fun Pill(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val background by animateColorAsState(
         targetValue = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent,
         animationSpec = tween(180),
@@ -433,8 +419,8 @@ private fun Pill(text: String, selected: Boolean, onClick: () -> Unit) {
         label = "pillContent"
     )
     Box(
-        modifier = Modifier
-            .heightIn(min = 36.dp)
+        modifier = modifier
+            .heightIn(min = 40.dp)
             .clip(CircleShape)
             .background(background)
             .border(
@@ -443,7 +429,7 @@ private fun Pill(text: String, selected: Boolean, onClick: () -> Unit) {
                 shape = CircleShape
             )
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
-            .padding(horizontal = 14.dp),
+            .padding(horizontal = 4.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(text = text, style = MaterialTheme.typography.labelLarge, color = content, maxLines = 1)
@@ -506,30 +492,31 @@ private fun LetterPicker(
                 TextButton(onClick = onClear) { Text("Clear") }
             }
         }
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            letters.forEach { letter ->
-                val isSelected = letter in selected
-                LetterPill(
-                    letter = letter,
-                    selected = isSelected,
-                    // A chosen letter can always be dropped, even if nothing matches it now.
-                    enabled = isSelected || letter in available,
-                    onClick = { onToggle(letter) }
-                )
+        letters.chunked(6).forEach { rowLetters ->
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+                rowLetters.forEach { letter ->
+                    val isSelected = letter in selected
+                    LetterPill(
+                        letter = letter,
+                        selected = isSelected,
+                        // A chosen letter can always be dropped, even if nothing matches it now.
+                        enabled = isSelected || letter in available,
+                        onClick = { onToggle(letter) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                repeat(6 - rowLetters.size) { Spacer(Modifier.weight(1f)) }
             }
         }
     }
 }
 
 @Composable
-private fun LetterPill(letter: Char, selected: Boolean, enabled: Boolean, onClick: () -> Unit) {
+private fun LetterPill(letter: Char, selected: Boolean, enabled: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val scheme = MaterialTheme.colorScheme
     Box(
-        modifier = Modifier
-            .size(40.dp)
+        modifier = modifier
+            .aspectRatio(1f)
             .clip(CircleShape)
             .background(if (selected) scheme.primary else Color.Transparent)
             .border(
@@ -553,12 +540,13 @@ private fun LetterPill(letter: Char, selected: Boolean, enabled: Boolean, onClic
 }
 
 @Composable
-private fun AppearanceRow(title: String, subtitle: String, selected: Boolean, onClick: () -> Unit) {
+private fun AppearanceRow(title: String, selected: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.small)
-            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+            .heightIn(min = 48.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         androidx.compose.material3.RadioButton(selected = selected, onClick = null)
@@ -568,11 +556,6 @@ private fun AppearanceRow(title: String, subtitle: String, selected: Boolean, on
                 .padding(start = Spacing.Standard)
         ) {
             Text(text = title, style = MaterialTheme.typography.titleSmall)
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
@@ -605,13 +588,10 @@ private fun StripRow(checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun CountPicker(count: Int?, onCountChange: (Int?) -> Unit) {
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(Spacing.Compact),
-        verticalArrangement = Arrangement.spacedBy(Spacing.Compact)
-    ) {
-        Pill(text = "All", selected = count == null, onClick = { onCountChange(null) })
+    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
+        Pill(text = "All", selected = count == null, onClick = { onCountChange(null) }, modifier = Modifier.weight(1f))
         listOf(10, 20, 50, 100).forEach { n ->
-            Pill(text = "$n", selected = count == n, onClick = { onCountChange(n) })
+            Pill(text = "$n", selected = count == n, onClick = { onCountChange(n) }, modifier = Modifier.weight(1f))
         }
     }
     var text by remember(count) { mutableStateOf(count?.toString() ?: "") }
@@ -623,7 +603,8 @@ private fun CountPicker(count: Int?, onCountChange: (Int?) -> Unit) {
             onCountChange(digits.toIntOrNull()?.takeIf { it > 0 })
         },
         modifier = Modifier.fillMaxWidth(),
-        label = { Text("Custom number (empty = all)") },
+        label = { Text("Custom number") },
+        placeholder = { Text("Empty = all") },
         singleLine = true,
         shape = MaterialTheme.shapes.small,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -639,13 +620,14 @@ private fun <T> DropdownSelector(
     title: String,
     selected: T,
     options: List<Pair<T, String>>,
-    onSelected: (T) -> Unit
+    onSelected: (T) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
     val selectedLabel = options.firstOrNull { it.first == selected }?.second ?: options.first().second
     val isFiltering = selected != options.first().first
 
-    Box {
+    Box(modifier = modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -653,7 +635,7 @@ private fun <T> DropdownSelector(
                 .clip(MaterialTheme.shapes.small)
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .clickable { expanded = true }
-                .padding(horizontal = 14.dp, vertical = 8.dp),
+                .padding(start = 12.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {

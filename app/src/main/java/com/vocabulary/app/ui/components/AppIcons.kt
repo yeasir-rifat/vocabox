@@ -135,6 +135,12 @@ object AppIcons {
     )
     val Download = icon("Download", "M12 3 v12", "M7 10 l5 5 5 -5", "M5 21 h14")
     val Tune = icon("Tune", "M4 6 h8", circle(15f, 6f, 2.5f), "M18 6 h2", "M4 12 h2", circle(9f, 12f, 2.5f), "M12 12 h8", "M4 18 h9", circle(16f, 18f, 2.5f), "M19 18 h1")
+    val Help = icon(
+        "Help",
+        circle(12f, 12f, 9f),
+        "M9.5 9 a2.5 2.5 0 0 1 4.7 -1.2 c0.5 0.9 0.1 1.5 -0.6 2.1 -0.7 0.6 -1.3 1 -1.4 2.1",
+        "M12 16.5 v0.01"
+    )
     val Info = icon("Info", circle(12f, 12f, 9f), "M12 11 v5.5", "M12 7.5 v0.01")
     val Target = icon("Target", circle(12f, 12f, 9f), circle(12f, 12f, 5f), "M12 12 h0.01")
 }

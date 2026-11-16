@@ -314,7 +314,7 @@ private fun ModeCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 64.dp)
-                .padding(start = Spacing.Standard, top = Spacing.Compact, bottom = Spacing.Compact, end = Spacing.Micro),
+                .padding(start = Spacing.Standard, top = Spacing.Compact, bottom = Spacing.Compact, end = Spacing.Content),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {

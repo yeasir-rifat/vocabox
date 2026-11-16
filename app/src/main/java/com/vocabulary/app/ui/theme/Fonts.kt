@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.em
 import com.vocabulary.app.R
 
 private val weights = listOf(
@@ -48,6 +49,16 @@ val TimesNewRoman = FontFamily(
 /** Bangla content text (Kalpurush has one weight; bold is synthesised). */
 val Kalpurush = FontFamily(Font(R.font.kalpurush, FontWeight.Normal))
 
+/**
+ * Size of every Bangla run relative to the English text around it (app text and quiz PDF).
+ *
+ * Measured from the font files: Kalpurush draws its headline (matra) line at 0.644 em, Times New
+ * Roman draws its ascenders at 0.683 em and capitals at 0.662 em. 0.683 / 0.644 = 1.06 puts the
+ * Bangla headline level with the English ascender line, so 1.05 balances the two. Going higher
+ * pushes the Bangla vowel signs (up to 0.995 em) above the line box of the tighter line heights.
+ */
+const val BANGLA_SCALE = 1.05f
+
 private fun Char.isBengali() = this in '\u0980'..'\u09FF' || this == '\u200C' || this == '\u200D'
 
 /** Ranges of Bangla runs. Spaces and punctuation between Bangla characters stay inside the run. */
@@ -78,7 +89,7 @@ fun String.bn(): AnnotatedString {
     if (ranges.isEmpty()) return AnnotatedString(this)
     return buildAnnotatedString {
         append(this@bn)
-        ranges.forEach { addStyle(SpanStyle(fontFamily = Kalpurush), it.first, it.last + 1) }
+        ranges.forEach { addStyle(SpanStyle(fontFamily = Kalpurush, fontSize = BANGLA_SCALE.em), it.first, it.last + 1) }
     }
 }
 
@@ -103,6 +114,6 @@ fun String.markup(): AnnotatedString {
     return buildAnnotatedString {
         append(text)
         bold.forEach { addStyle(SpanStyle(fontWeight = FontWeight.Bold), it.first, it.last + 1) }
-        bengaliRanges(text).forEach { addStyle(SpanStyle(fontFamily = Kalpurush), it.first, it.last + 1) }
+        bengaliRanges(text).forEach { addStyle(SpanStyle(fontFamily = Kalpurush, fontSize = BANGLA_SCALE.em), it.first, it.last + 1) }
     }
 }

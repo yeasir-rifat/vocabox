@@ -96,7 +96,7 @@ internal fun WordEntity.antonymPairs(): List<Pair<String, String>> =
  * device that allows it; elsewhere the background is only dimmed, a little more strongly.
  */
 @Composable
-private fun BlurBehindEffect(blurRadius: androidx.compose.ui.unit.Dp = 24.dp) {
+internal fun BlurBehindEffect(blurRadius: androidx.compose.ui.unit.Dp = 24.dp) {
     val view = LocalView.current
     val context = LocalContext.current
     val density = androidx.compose.ui.platform.LocalDensity.current
@@ -189,15 +189,7 @@ internal fun WordSections(
             Text(
                 text = word.banglaMeaningLine().bn(),
                 fontFamily = TimesNewRoman,
-                style = MaterialTheme.typography.titleLarge,
-            )
-        }
-        Separator()
-        PopupSection(title = if (word.isOneWord()) "Phrase" else "English Meaning") {
-            Text(
-                text = word.englishMeaning,
-                style = MaterialTheme.typography.bodyLarge,
-                fontFamily = TimesNewRoman
+                style = MaterialTheme.typography.titleLarge.copy(lineHeight = 30.sp),
             )
         }
         if (synonyms.isNotEmpty()) {
@@ -280,6 +272,7 @@ internal fun PopupHeader(
                 fontFamily = TimesNewRoman,
                 modifier = Modifier.padding(end = Spacing.Compact)
             )
+            HeaderMeaning(word, modifier = Modifier.padding(end = Spacing.Compact))
         }
     } else {
         Row(
@@ -288,15 +281,30 @@ internal fun PopupHeader(
                 .padding(start = Spacing.Card, end = Spacing.Compact, top = Spacing.Compact, bottom = Spacing.Compact),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineSmall,
-                fontFamily = TimesNewRoman,
-                modifier = Modifier.weight(1f)
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontFamily = TimesNewRoman
+                )
+                HeaderMeaning(word)
+            }
             HeaderActions(word, isBookmarked, onToggleBookmark, onSpeak, onClose)
         }
     }
+}
+
+/** The English meaning sits right under the word in the header, not in a section of its own. */
+@Composable
+private fun HeaderMeaning(word: WordEntity, modifier: Modifier = Modifier) {
+    if (word.englishMeaning.isBlank()) return
+    Text(
+        text = word.englishMeaning,
+        style = MaterialTheme.typography.bodyLarge,
+        fontFamily = TimesNewRoman,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier.padding(top = 2.dp)
+    )
 }
 
 @Composable
@@ -342,7 +350,7 @@ private fun PopupSection(title: String, content: @Composable () -> Unit) {
 
 /** "Forsake (পরিত্যাগ করা), desert (ত্যাগ করে যাওয়া), ...": one comma separated line, wrapping as needed. */
 @Composable
-private fun TermList(terms: List<Pair<String, String>>) {
+internal fun TermList(terms: List<Pair<String, String>>) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
     Text(
         text = buildAnnotatedString {
@@ -359,7 +367,8 @@ private fun TermList(terms: List<Pair<String, String>>) {
                 }
             }
         },
-        style = MaterialTheme.typography.bodyLarge,
+        // A little larger than the body text so the synonym and antonym lines read comfortably.
+        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 19.sp, lineHeight = 30.sp),
         fontFamily = TimesNewRoman
     )
 }

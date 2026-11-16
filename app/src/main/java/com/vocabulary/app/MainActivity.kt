@@ -20,7 +20,16 @@ import com.vocabulary.app.data.model.ThemeMode
 import com.vocabulary.app.data.prefs.AppPreferences
 import com.vocabulary.app.data.seed.SeedStatus
 import com.vocabulary.app.data.seed.WordSeedImporter
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.vocabulary.app.data.auth.AuthState
 import com.vocabulary.app.ui.SeedGate
+import com.vocabulary.app.ui.auth.AuthViewModel
+import com.vocabulary.app.ui.auth.LoginScreen
+import com.vocabulary.app.ui.auth.OnboardingScreen
 import com.vocabulary.app.ui.VocabularyRoot
 import com.vocabulary.app.ui.theme.VocabularyTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -52,22 +61,41 @@ class MainActivity : ComponentActivity() {
             val themeFlow: Flow<ThemeMode?> = preferences.themeMode
             val themeMode by themeFlow.collectAsStateWithLifecycle(initialValue = null)
             val seedStatus by seedImporter.status.collectAsStateWithLifecycle()
+            val onboardingFlow: Flow<Boolean?> = preferences.onboardingDone
+            val onboardingDone by onboardingFlow.collectAsStateWithLifecycle(initialValue = null)
             val mode = themeMode
-            if (mode != null) {
+            if (mode != null && onboardingDone != null) {
                 val darkTheme = when (mode) {
                     ThemeMode.SYSTEM -> isSystemInDarkTheme()
                     ThemeMode.LIGHT -> false
                     ThemeMode.DARK -> true
                 }
                 VocabularyTheme(darkTheme = darkTheme) {
-                    if (seedStatus == SeedStatus.READY) {
-                        VocabularyRoot(
-                            openWordId = openWordId,
-                            onWordOpened = {
-                                intent.removeExtra(EXTRA_WORD_ID)
-                                openWordId = null
-                            }
-                        )
+                    if (onboardingDone == false) {
+                        OnboardingScreen(onFinish = { lifecycleScope.launch { preferences.setOnboardingDone() } })
+                    } else if (seedStatus == SeedStatus.READY) {
+                        val authViewModel: AuthViewModel = hiltViewModel()
+                        val authState by authViewModel.authState.collectAsStateWithLifecycle()
+                        val busy by authViewModel.busy.collectAsStateWithLifecycle()
+                        val error by authViewModel.error.collectAsStateWithLifecycle()
+                        when (authState) {
+                            AuthState.Loading -> Box(
+                                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                            )
+                            AuthState.SignedOut -> LoginScreen(
+                                busy = busy,
+                                error = error,
+                                configured = authViewModel.isConfigured,
+                                onSignIn = { authViewModel.signIn(this@MainActivity) }
+                            )
+                            is AuthState.SignedIn -> VocabularyRoot(
+                                openWordId = openWordId,
+                                onWordOpened = {
+                                    intent.removeExtra(EXTRA_WORD_ID)
+                                    openWordId = null
+                                }
+                            )
+                        }
                     } else {
                         SeedGate(
                             status = seedStatus,

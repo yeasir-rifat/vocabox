@@ -59,6 +59,8 @@ import com.vocabulary.app.ui.components.AppIcons
 import com.vocabulary.app.ui.components.SettingsDivider
 import com.vocabulary.app.ui.components.SettingsGroup
 import com.vocabulary.app.ui.components.SettingsLabel
+import com.vocabulary.app.ui.components.ProfileCard
+import com.vocabulary.app.data.remote.SyncState
 import com.vocabulary.app.ui.components.SettingsRow
 import com.vocabulary.app.ui.components.SettingsValue
 import com.vocabulary.app.ui.theme.Spacing
@@ -88,6 +90,7 @@ fun SettingsScreen(
     var showTimePicker by rememberSaveable { mutableStateOf(false) }
     var showResetDialog by rememberSaveable { mutableStateOf(false) }
     var showGoalDialog by rememberSaveable { mutableStateOf(false) }
+    var showSignOutDialog by rememberSaveable { mutableStateOf(false) }
 
     // Re-checked every time the screen resumes, so returning from system settings updates it.
     var notificationsBlocked by remember { mutableStateOf(false) }
@@ -118,7 +121,28 @@ fun SettingsScreen(
         ) {
             Text(text = "Settings", style = MaterialTheme.typography.headlineMedium)
 
-            // The profile card (ui/components/ProfileCard.kt) returns here once account login exists.
+            ProfileCard(
+                name = state.userName,
+                subtitle = state.userEmail,
+                onClick = {}
+            )
+
+            SettingsLabel("Account and sync")
+            SettingsGroup {
+                SettingsRow(
+                    icon = AppIcons.Download,
+                    title = "Sync words",
+                    subtitle = syncSubtitle(state.sync, state.lastSyncMillis, context),
+                    enabled = state.sync != SyncState.Syncing,
+                    onClick = viewModel::syncNow
+                )
+                SettingsDivider()
+                SettingsRow(
+                    icon = AppIcons.User,
+                    title = "Sign out",
+                    onClick = { showSignOutDialog = true }
+                )
+            }
 
             SettingsLabel("Preferences")
             SettingsGroup {
@@ -273,6 +297,21 @@ fun SettingsScreen(
         )
     }
 
+    if (showSignOutDialog) {
+        AlertDialog(
+            onDismissRequest = { showSignOutDialog = false },
+            title = { Text("Sign out?") },
+            text = { Text("Your words and progress stay on this phone. You will need to sign in again to open the app.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showSignOutDialog = false
+                    viewModel.signOut()
+                }) { Text("Sign out") }
+            },
+            dismissButton = { TextButton(onClick = { showSignOutDialog = false }) { Text("Cancel") } }
+        )
+    }
+
     if (showResetDialog) {
         AlertDialog(
             onDismissRequest = { showResetDialog = false },
@@ -351,3 +390,17 @@ private fun appVersion(context: Context): String =
     } catch (e: Exception) {
         ""
     }
+
+private fun syncSubtitle(sync: SyncState, lastSyncMillis: Long, context: Context): String = when (sync) {
+    SyncState.Syncing -> "Syncing..."
+    is SyncState.Failed -> sync.message
+    is SyncState.Updated -> "Updated: ${sync.wordCount} words saved for offline use"
+    SyncState.UpToDate, SyncState.Idle ->
+        if (lastSyncMillis > 0L) {
+            "Up to date. Last checked " + android.text.format.DateUtils.getRelativeTimeSpanString(
+                lastSyncMillis, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS
+            ).toString().lowercase()
+        } else {
+            "Download the latest word list"
+        }
+}

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Downloads DM Sans and Noto Serif Bengali (SIL OFL) from the official Google Fonts repository
+# Downloads DM Sans (SIL OFL) from the official Google Fonts repository
 # into app/src/main/res/font. Run once locally; GitHub Actions runs it automatically.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -21,5 +21,4 @@ fetch() { # <google/fonts folder> <output file name> <file name prefix>
 }
 
 fetch dmsans dm_sans.ttf DMSans
-fetch notoserifbengali noto_serif_bengali.ttf NotoSerifBengali
 echo "Fonts ready in $OUT"

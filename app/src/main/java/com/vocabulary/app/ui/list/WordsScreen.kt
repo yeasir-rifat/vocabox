@@ -66,7 +66,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.vocabulary.app.ui.components.label
-import com.vocabulary.app.ui.components.levelLabel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -212,7 +211,6 @@ fun WordsScreen(
         stripEnabled = options.showStrip,
         onStripChange = { viewModel.setOptions(options.copy(showStrip = it)) },
         onTypeSelected = viewModel::onTypeSelected,
-        onLevelSelected = viewModel::onLevelSelected,
         onShuffleAgain = viewModel::shuffleAgain,
         onReset = viewModel::resetOptions,
         onClose = { settingsOpen = false }
@@ -268,13 +266,13 @@ private fun WordListWithIndex(
             .sortedBy { (letter, _) -> if (letter == '#') '{' else letter }
     }
 
-    // First LazyColumn index of every letter section (header + its items).
+    // First LazyColumn index of every letter section (its items; the list has no letter headers).
     val startIndexes = remember(groups) {
         val map = LinkedHashMap<Char, Int>()
         var index = 0
         groups.forEach { (letter, list) ->
             map[letter] = index
-            index += 1 + list.size
+            index += list.size
         }
         map
     }
@@ -297,10 +295,7 @@ private fun WordListWithIndex(
             verticalArrangement = Arrangement.spacedBy(0.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            groups.forEach { (letter, list) ->
-                stickyHeader(key = "header_$letter") {
-                    LetterHeader(letter)
-                }
+            groups.forEach { (_, list) ->
                 items(list, key = { it.id }) { word ->
                     WordRow(
                         word = word,
@@ -329,19 +324,6 @@ private fun WordListWithIndex(
             )
         }
     }
-}
-
-@Composable
-private fun LetterHeader(letter: Char) {
-    Text(
-        text = letter.toString(),
-        style = MaterialTheme.typography.titleSmall,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(top = 12.dp, bottom = 4.dp, start = 4.dp)
-    )
 }
 
 @Composable

@@ -308,6 +308,20 @@ class QuizViewModel @Inject constructor(
         }
     }
 
+    /** Questions of the Step Quiz that have no answer yet. */
+    fun unansweredCount(): Int = (questions.size - answered.size).coerceAtLeast(0)
+
+    /** Ends the Step Quiz at any moment: questions not answered yet count as wrong. */
+    fun submitStep() {
+        if (_state.value !is QuizState.Active) return
+        timerJob?.cancel()
+        pausedStepMs = null
+        for (i in answered.size until questions.size) {
+            answered += AnsweredQuestion(questions[i], UNANSWERED)
+        }
+        finish()
+    }
+
     /** Time left of the question in play while an earlier question is on screen. */
     private var pausedStepMs: Long? = null
 

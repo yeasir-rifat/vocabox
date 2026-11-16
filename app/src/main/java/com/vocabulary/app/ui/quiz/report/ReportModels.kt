@@ -27,7 +27,7 @@ data class ReportOptions(
     /** Group no. or any other note. Blank = the group name when the quiz came from a group. */
     val groupText: String = "",
     val showLogo: Boolean = true,
-    val showDate: Boolean = true,
+    val showDate: Boolean = false,
     val showStats: Boolean = true,
     /** Marks taken off for each wrong (answered) question. */
     val negativeMark: Float = 0.25f

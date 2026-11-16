@@ -1,0 +1,9 @@
+# Hand-written baseline profile: tells Android to precompile the whole app (and the Compose
+# runtime it uses) at install time, so the first launch and the first scrolls are not interpreted.
+HSPLcom/vocabulary/app/**;->**(**)**
+HSPLandroidx/compose/**;->**(**)**
+HSPLandroidx/lifecycle/**;->**(**)**
+HSPLandroidx/room/**;->**(**)**
+HSPLandroidx/datastore/**;->**(**)**
+Lcom/vocabulary/app/**;
+Landroidx/compose/**;

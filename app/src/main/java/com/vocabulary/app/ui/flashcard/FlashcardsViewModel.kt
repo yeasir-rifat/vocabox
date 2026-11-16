@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vocabulary.app.data.local.entity.WordEntity
 import com.vocabulary.app.data.model.DeckSource
-import com.vocabulary.app.data.model.WordType
 import com.vocabulary.app.data.repository.DeckSpec
 import com.vocabulary.app.data.repository.StudyRepository
 import com.vocabulary.app.data.repository.WordRepository
@@ -35,8 +34,6 @@ import javax.inject.Inject
 data class DeckConfig(
     val source: DeckSource = DeckSource.SMART,
     val size: Int = DEFAULT_SIZE,
-    val type: WordType? = null,
-    val topic: String? = null,
     val level: Int? = null
 ) {
     companion object {
@@ -108,22 +105,18 @@ class FlashcardsViewModel @Inject constructor(
     private val _session = MutableStateFlow<SessionState>(SessionState.Setup)
     val session: StateFlow<SessionState> = _session.asStateFlow()
 
-    val topics: StateFlow<List<String>> = wordRepository.observeTopics()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
-
     val bookmarkedIds: StateFlow<Set<Long>> = wordRepository.observeBookmarkedIds()
         .map { it.toSet() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
     val counts: StateFlow<DeckCounts> = combine(
-        _config.map { Triple(it.type, it.topic, it.level) }.distinctUntilChanged(),
+        _config.map { it.level }.distinctUntilChanged(),
         DayTicker.dayStarts()
-    ) { filters, dayStart -> filters to dayStart }
-        .flatMapLatest { (filters, dayStart) ->
-            val (type, topic, level) = filters
+    ) { level, dayStart -> level to dayStart }
+        .flatMapLatest { (level, dayStart) ->
             combine(
-                studyRepository.observeDueCount(dayStart, topic, level, type),
-                studyRepository.observeNewCount(topic, level, type),
+                studyRepository.observeDueCount(dayStart, null, level, null),
+                studyRepository.observeNewCount(null, level, null),
                 studyRepository.observeBookmarkCount(),
                 studyRepository.observeMistakeCount()
             ) { due, fresh, bookmarked, mistakes ->
@@ -148,8 +141,6 @@ class FlashcardsViewModel @Inject constructor(
 
     fun onSourceSelected(source: DeckSource) = _config.update { it.copy(source = source) }
     fun onSizeSelected(size: Int) = _config.update { it.copy(size = size) }
-    fun onTypeSelected(type: WordType?) = _config.update { it.copy(type = type) }
-    fun onTopicSelected(topic: String?) = _config.update { it.copy(topic = topic) }
     fun onLevelSelected(level: Int?) = _config.update { it.copy(level = level) }
 
     fun start() {
@@ -158,7 +149,7 @@ class FlashcardsViewModel @Inject constructor(
         viewModelScope.launch {
             val cfg = _config.value
             val deck = studyRepository.buildDeck(
-                DeckSpec(cfg.source, cfg.size, cfg.type, cfg.topic, cfg.level, customIds)
+                DeckSpec(cfg.source, cfg.size, null, null, cfg.level, customIds)
             )
             if (deck.isEmpty()) {
                 _session.value = SessionState.Empty

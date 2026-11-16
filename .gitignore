@@ -12,3 +12,6 @@ keystore.properties
 *.jks
 *.keystore
 /release/
+
+serviceAccountKey.json
+scripts/node_modules/

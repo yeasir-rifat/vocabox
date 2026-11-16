@@ -9,6 +9,12 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+// Firebase is switched on only when google-services.json is present (CI writes it from a secret).
+// Without it the app still builds, and the login screen explains that Firebase is not set up.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 val keystoreProps = Properties().apply {
     val file = rootProject.file("keystore.properties")
     if (file.exists()) file.inputStream().use { load(it) }
@@ -22,8 +28,9 @@ android {
         applicationId = "com.vocabulary.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        // CI passes -PappVersionCode / -PappVersionName so every build is a new, installable update.
+        versionCode = (findProperty("appVersionCode") as String?)?.toIntOrNull() ?: 1
+        versionName = (findProperty("appVersionName") as String?) ?: "1.0.0"
     }
 
     signingConfigs {
@@ -40,6 +47,7 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.findByName("release")
+            isDebuggable = false
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -63,6 +71,11 @@ android {
         // Lint runs in CI and its report is uploaded; fix warnings over time without blocking builds.
         abortOnError = false
     }
+    // Do not embed the encrypted dependency list in the APK (smaller, nothing extra to inspect).
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
@@ -76,10 +89,7 @@ ksp {
 val downloadFonts = tasks.register<Exec>("downloadFonts") {
     workingDir = rootProject.projectDir
     commandLine("bash", "scripts/download_fonts.sh")
-    onlyIf {
-        !file("src/main/res/font/dm_sans.ttf").exists() ||
-            !file("src/main/res/font/noto_serif_bengali.ttf").exists()
-    }
+    onlyIf { !file("src/main/res/font/dm_sans.ttf").exists() }
 }
 tasks.matching { it.name == "preBuild" }.configureEach { dependsOn(downloadFonts) }
 
@@ -99,6 +109,8 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation(libs.androidx.navigation.compose)
+    // Installs the baseline profile on devices that do not get the app from Google Play.
+    implementation(libs.androidx.profileinstaller)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
@@ -114,6 +126,14 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play)
+    implementation(libs.google.id)
+    implementation(libs.kotlinx.coroutines.play)
 
     testImplementation(libs.junit)
 }

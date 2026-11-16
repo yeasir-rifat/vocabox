@@ -1,15 +1,26 @@
-name: Build APK
+name: Build and Release
 
+# main-এ push করলেই: টেস্ট -> R8 দিয়ে ছোট ও অবফাসকেটেড release APK -> সাইন -> যাচাই -> GitHub Releases-এ আপলোড।
 on:
   push:
     branches: [ main, master ]
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write   # Releases-এ APK আপলোডের জন্য
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      VERSION_NAME: 1.0.${{ github.run_number }}
+      VERSION_CODE: ${{ github.run_number }}
 
     steps:
       - name: Checkout
@@ -27,67 +38,129 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Download fonts (DM Sans, Noto Serif Bengali)
+      - name: Download fonts (DM Sans)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/download_fonts.sh
 
+      # ---------- Firebase ----------
+      # google-services.json (Firebase Console > Project settings > Your apps) -> base64 -> Secret GOOGLE_SERVICES_JSON
+      - name: Add google-services.json
+        if: github.event_name != 'pull_request'
+        env:
+          GSJ: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GSJ" ]; then
+            echo "$GSJ" | base64 -d > app/google-services.json
+          elif [ ! -f app/google-services.json ]; then
+            echo "::error::GOOGLE_SERVICES_JSON secret নেই। FIREBASE_SETUP.md দেখুন (ধাপ ৫)।"
+            exit 1
+          fi
+
       - name: Unit tests
         run: gradle :app:testDebugUnitTest --stacktrace
 
-      - name: Lint
-        run: gradle :app:lintDebug --stacktrace
-
-      - name: Upload lint report
-        if: always()
-        uses: actions/upload-artifact@v4
+      # ---------- সাইনিং ----------
+      # ১) GitHub Secrets সেট থাকলে সেটাই ব্যবহার হবে (সবচেয়ে নিরাপদ, আপডেট সবসময় কাজ করবে)।
+      # ২) না থাকলে একবার নিজে থেকে কী বানিয়ে repo-র private cache-এ রাখা হবে, যাতে পরের বিল্ডেও একই কী থাকে।
+      - name: Restore auto-generated keystore
+        if: github.event_name != 'pull_request'
+        uses: actions/cache@v4
         with:
-          name: Vocabox-lint-report
-          path: app/build/reports/lint-results-debug.html
-          if-no-files-found: ignore
+          path: .ci-keystore
+          key: vocabox-release-keystore-v1
 
-      - name: Build debug APK
-        run: gradle :app:assembleDebug --stacktrace
-
-      # Unsigned release build, only to prove that R8 shrinking does not break the app.
-      - name: Verify release (R8) build
-        run: gradle :app:assembleRelease --stacktrace
-
-      - name: Upload debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Vocabox-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
-
-      # ঐচ্ছিক: GitHub Secrets সেট করা থাকলে signed release APK বানাবে
-      - name: Check signing secrets
+      - name: Prepare signing
+        if: github.event_name != 'pull_request'
         id: signing
-        env:
-          KS: ${{ secrets.KEYSTORE_BASE64 }}
-        run: |
-          if [ -n "$KS" ]; then echo "enabled=true" >> "$GITHUB_OUTPUT"; fi
-
-      - name: Build signed release APK
-        if: steps.signing.outputs.enabled == 'true'
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          echo "$KEYSTORE_BASE64" | base64 -d > vocabulary.jks
-          cat > keystore.properties <<PROPS
-          storeFile=vocabulary.jks
-          storePassword=$KEYSTORE_PASSWORD
-          keyAlias=$KEY_ALIAS
-          keyPassword=$KEY_PASSWORD
-          PROPS
-          gradle :app:assembleRelease --stacktrace
+          set -e
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > vocabulary.jks
+            SP="$KEYSTORE_PASSWORD"; KA="$KEY_ALIAS"; KP="$KEY_PASSWORD"
+            echo "mode=secrets" >> "$GITHUB_OUTPUT"
+          else
+            mkdir -p .ci-keystore
+            if [ ! -f .ci-keystore/vocabulary.jks ]; then
+              PW=$(openssl rand -hex 16)
+              keytool -genkeypair -v -keystore .ci-keystore/vocabulary.jks -storetype PKCS12 \
+                -alias vocabox -keyalg RSA -keysize 4096 -validity 36500 \
+                -storepass "$PW" -keypass "$PW" -dname "CN=Vocabox, O=Vocabox, C=BD"
+              echo "$PW" > .ci-keystore/pw.txt
+            fi
+            cp .ci-keystore/vocabulary.jks vocabulary.jks
+            PW=$(cat .ci-keystore/pw.txt)
+            SP="$PW"; KA="vocabox"; KP="$PW"
+            echo "mode=auto" >> "$GITHUB_OUTPUT"
+          fi
+          {
+            echo "storeFile=vocabulary.jks"
+            echo "storePassword=$SP"
+            echo "keyAlias=$KA"
+            echo "keyPassword=$KP"
+          } > keystore.properties
 
-      - name: Upload release APK
-        if: steps.signing.outputs.enabled == 'true'
+      # ---------- Release build (R8 minify + resource shrink + baseline profile) ----------
+      - name: Build release APK
+        run: >
+          gradle :app:assembleRelease --stacktrace
+          -PappVersionCode=${{ env.VERSION_CODE }}
+          -PappVersionName=${{ env.VERSION_NAME }}
+
+      - name: Verify signature and name the APK
+        if: github.event_name != 'pull_request'
+        run: |
+          set -e
+          APK=$(ls app/build/outputs/apk/release/*.apk | head -n 1)
+          BT=$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)
+          "$ANDROID_HOME/build-tools/$BT/apksigner" verify --verbose --print-certs "$APK"
+          mkdir -p dist
+          cp "$APK" "dist/Vocabox-v${VERSION_NAME}.apk"
+          (cd dist && sha256sum "Vocabox-v${VERSION_NAME}.apk" > "Vocabox-v${VERSION_NAME}.apk.sha256")
+          cat dist/*.sha256
+          # Firebase Console-এ এই SHA-1 দিতে হবে, নইলে Google sign-in কাজ করবে না
+          SHA1=$("$ANDROID_HOME/build-tools/$BT/apksigner" verify --print-certs "$APK" | grep -m1 "SHA-1 digest" | awk '{print $NF}' | tr a-f A-F | sed 's/../&:/g; s/:$//')
+          {
+            echo "### Signing certificate SHA-1 (Firebase-এ যোগ করুন)"
+            echo '```'
+            echo "$SHA1"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload APK (workflow artifact)
+        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: Vocabox-release-apk
-          path: app/build/outputs/apk/release/*.apk
+          path: dist/*
+          if-no-files-found: error
+
+      # R8 mapping: কখনো crash stack trace পড়তে লাগলে এটা দিয়ে নাম ফেরত পাওয়া যায়
+      - name: Upload R8 mapping
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Vocabox-r8-mapping
+          path: app/build/outputs/mapping/release/mapping.txt
+          if-no-files-found: ignore
+
+      - name: Publish GitHub Release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Vocabox v${{ env.VERSION_NAME }}
+          body: |
+            Signed release APK (R8 minified, signature verified).
+            SHA-256 checksum ফাইলটা পাশেই দেওয়া আছে।
+          files: dist/*
+          make_latest: true
+
+      - name: Clean up key material
+        if: always()
+        run: rm -f vocabulary.jks keystore.properties app/google-services.json

@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.fillMaxHeight
 import com.vocabulary.app.ui.components.AppIcons
+import com.vocabulary.app.ui.components.ExamHeaderBar
+import com.vocabulary.app.ui.components.ExamIconButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -120,47 +122,51 @@ fun ReportPreviewScreen(
     }
 
     Column(modifier = modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 4.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(AppIcons.ArrowBack, contentDescription = "Back")
+        // Toolbar: "Preview" and the page count on the left; back, settings and download on the right.
+        ExamHeaderBar {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "Preview",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+                Text(
+                    text = if (pages.size == 1) "1 page" else "${pages.size} pages",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
-            Text(
-                "Preview",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.weight(1f)
+            ExamIconButton(
+                icon = AppIcons.ArrowBack,
+                contentDescription = "Back to results",
+                onClick = onBack
             )
-            Text(
-                text = if (pages.size == 1) "1 page" else "${pages.size} pages",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(end = 4.dp)
+            ExamIconButton(
+                icon = AppIcons.Tune,
+                contentDescription = "Settings",
+                onClick = { showSheet = true }
             )
-            IconButton(onClick = { showSheet = true }) {
-                Icon(AppIcons.Tune, contentDescription = "Settings")
-            }
-            IconButton(
+            ExamIconButton(
+                icon = AppIcons.Download,
+                contentDescription = "Download PDF",
+                filled = true,
+                enabled = pages.isNotEmpty(),
                 onClick = {
                     val stamp = SimpleDateFormat("yyyyMMdd_HHmm", Locale.US).format(Date())
                     saveLauncher.launch("Vocabox_Quiz_$stamp.pdf")
-                },
-                enabled = pages.isNotEmpty()
-            ) {
-                Icon(AppIcons.Download, contentDescription = "Download PDF")
-            }
+                }
+            )
         }
 
+        // The sheets sit on the plain page background with a clear gap between them.
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-            contentPadding = PaddingValues(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .background(MaterialTheme.colorScheme.background),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             itemsIndexed(pages) { _, page -> PagePreview(page) }
         }
@@ -181,7 +187,7 @@ private fun PagePreview(page: PaperPage) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(3.dp, RoundedCornerShape(2.dp))
+            .shadow(6.dp, RoundedCornerShape(2.dp), ambientColor = Color(0x1A111827), spotColor = Color(0x1A111827))
             .aspectRatio(PAGE_W / PAGE_H)
             .background(Color.White)
             .drawBehind {

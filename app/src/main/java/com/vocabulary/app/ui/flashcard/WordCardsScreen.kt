@@ -140,7 +140,6 @@ fun WordCardsScreen(
             onStripChange = { viewModel.setOptions(options.copy(cardsStrip = it)) },
             onOptionsChange = viewModel::setOptions,
             onTypeSelected = viewModel::onTypeSelected,
-            onLevelSelected = viewModel::onLevelSelected,
             onShuffleAgain = viewModel::shuffleAgain,
             onReset = viewModel::resetOptions,
             onClose = { settingsOpen = false }

@@ -104,7 +104,6 @@ class WordCardsViewModel @Inject constructor(
     }
 
     fun onTypeSelected(type: WordType?) = optionsStore.set(optionsStore.options.value.copy(type = type))
-    fun onLevelSelected(level: Int?) = optionsStore.set(optionsStore.options.value.copy(level = level))
 
     fun toggleBookmark(wordId: Long) {
         viewModelScope.launch { repository.toggleBookmark(wordId) }

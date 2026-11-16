@@ -75,7 +75,6 @@ class GroupsViewModel @Inject constructor(
     }
 
     fun onTypeSelected(type: WordType?) = optionsStore.set(optionsStore.options.value.copy(type = type))
-    fun onLevelSelected(level: Int?) = optionsStore.set(optionsStore.options.value.copy(level = level))
 
     fun quiz(group: WordGroup) {
         launcher.request(QuizGroupRequest(group.title, group.words.mapTo(HashSet()) { it.id }))

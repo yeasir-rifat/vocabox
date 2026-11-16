@@ -49,9 +49,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vocabulary.app.data.local.entity.WordEntity
 import com.vocabulary.app.tts.TtsStatus
-import com.vocabulary.app.ui.components.LevelBadge
 import com.vocabulary.app.ui.components.shortPartOfSpeech
-import com.vocabulary.app.ui.components.singularLabel
+import com.vocabulary.app.ui.groups.TermList
+import com.vocabulary.app.ui.groups.antonymPairs
+import com.vocabulary.app.ui.groups.synonymPairs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,6 +87,16 @@ fun WordDetailScreen(
                     }
                 },
                 actions = {
+                    // Speaker and star sit together at the top right.
+                    (uiState as? WordDetailUiState.Found)?.let { found ->
+                        IconButton(onClick = { viewModel.speak(found.word.word) }) {
+                            Icon(
+                                AppIcons.Volume,
+                                contentDescription = "Pronounce",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                     IconButton(onClick = viewModel::toggleBookmark) {
                         Icon(
                             imageVector = if (isBookmarked) AppIcons.StarFilled else AppIcons.Star,
@@ -166,24 +177,6 @@ private fun WordDetailContent(
                             fontStyle = FontStyle.Italic
                         )
                     }
-                    FilledTonalIconButton(
-                        onClick = { onSpeak(word.word) },
-                        modifier = Modifier.size(52.dp),
-                        colors = IconButtonDefaults.filledTonalIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                            contentColor = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        Icon(AppIcons.Volume, contentDescription = "Pronounce")
-                    }
-                }
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    AssistChip(onClick = {}, label = { Text(word.type.singularLabel()) })
-                    AssistChip(onClick = {}, label = { Text(word.topic) })
-                    LevelBadge(word.level, modifier = Modifier.align(Alignment.CenterVertically))
                 }
             }
         }
@@ -212,11 +205,12 @@ private fun WordDetailContent(
             }
         }
 
+        // "Careful (যত্নশীল), precise (সুনির্দিষ্ট)": one running line, like the popup.
         if (word.synonyms.isNotEmpty()) {
-            ChipSection(title = "Synonyms", items = word.synonyms, onSpeak = onSpeak)
+            Section(title = "Synonyms") { TermList(word.synonymPairs()) }
         }
         if (word.antonyms.isNotEmpty()) {
-            ChipSection(title = "Antonyms", items = word.antonyms, onSpeak = onSpeak)
+            Section(title = "Antonyms") { TermList(word.antonymPairs()) }
         }
 
         if (word.example.isNotBlank()) {
@@ -266,22 +260,3 @@ private fun Section(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun ChipSection(
-    title: String,
-    items: List<String>,
-    onSpeak: (String) -> Unit
-) {
-    Section(title = title) {
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items.forEach { item ->
-                // Tapping a chip pronounces that word.
-                SuggestionChip(onClick = { onSpeak(item) }, label = { Text(item, fontFamily = TimesNewRoman) })
-            }
-        }
-    }
-}

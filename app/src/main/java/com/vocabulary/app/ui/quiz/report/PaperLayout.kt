@@ -18,6 +18,7 @@ import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
 import androidx.core.content.res.ResourcesCompat
 import com.vocabulary.app.R
+import com.vocabulary.app.ui.theme.BANGLA_SCALE
 import com.vocabulary.app.data.model.QuizMode
 import com.vocabulary.app.ui.components.title
 import com.vocabulary.app.ui.quiz.AnsweredQuestion
@@ -49,26 +50,39 @@ class PaperLayout(context: Context) {
     private val latin: Typeface = runCatching { ResourcesCompat.getFont(context, R.font.tinos) }
         .getOrNull() ?: Typeface.SERIF
 
-    /** Bangla text: Noto Serif Bengali, the same font the app uses. */
-    private val bangla: Typeface = runCatching { ResourcesCompat.getFont(context, R.font.noto_serif_bengali) }
+    /** Bangla text: Kalpurush, the same font the app uses for word content. */
+    private val bangla: Typeface = runCatching { ResourcesCompat.getFont(context, R.font.kalpurush) }
         .getOrNull() ?: Typeface.SERIF
 
     private val logoBg: Int = runCatching { context.getColor(R.color.ic_launcher_background) }
         .getOrDefault(ACCENT)
 
+    /**
+     * Measurements follow the Examcamp paper: 0.75in margins, 8mm column gap, 5mm between
+     * questions (1mm = 2.835pt), colours #111111 / #0A7D43 / #C62828.
+     */
     private companion object {
-        const val MARGIN = 36f
+        const val MARGIN = 54f
         const val CONTENT_W = PAGE_W - 2 * MARGIN
-        const val COLUMN_GAP = 20f
-        const val BOTTOM = PAGE_H - MARGIN - 8f
+        const val COLUMN_GAP = 22.7f
+        /** Page number sits 7mm above the bottom edge; questions never go below it. */
+        const val FOOTER_BOTTOM = 19.8f
+        const val BOTTOM = PAGE_H - MARGIN - FOOTER_BOTTOM
+        const val QUESTION_GAP = 14.2f
+        const val OPT_INDENT = 8.5f
+        const val OPT_GAP_X = 17f
+        const val OPT_GAP_Y = 5.7f
+        const val OPT_MARGIN = 4.25f
+        const val BODY_SPACING = 1.3f
         const val ACCENT = 0xFFA44A49.toInt()
-        const val INK = 0xFF2A1B1A.toInt()
-        const val MUTED = 0xFF6B5B58.toInt()
-        const val LINE = 0xFFC9BDB1.toInt()
-        const val GREEN = 0xFF15803D.toInt()
-        const val RED = 0xFFDC2626.toInt()
-        const val TINT = 0xFFF6EFE8.toInt()
+        const val INK = 0xFF111111.toInt()
+        const val MUTED = 0xFF111111.toInt()
+        const val LINE = 0xFFDCDCDC.toInt()
+        const val GREEN = 0xFF0A7D43.toInt()
+        const val RED = 0xFFC62828.toInt()
     }
+
+    private fun Int.withAlpha(a: Float): Int = (this and 0x00FFFFFF) or ((a * 255).toInt() shl 24)
 
     private fun paint(
         size: Float,
@@ -93,13 +107,14 @@ class PaperLayout(context: Context) {
         text: CharSequence,
         paint: TextPaint,
         width: Float,
-        align: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL
+        align: Layout.Alignment = Layout.Alignment.ALIGN_NORMAL,
+        spacing: Float = 1.2f
     ): StaticLayout {
         val styled = withBanglaFont(text)
         return StaticLayout.Builder
             .obtain(styled, 0, styled.length, paint, width.toInt().coerceAtLeast(1))
             .setAlignment(align)
-            .setLineSpacing(0f, 1.2f)
+            .setLineSpacing(0f, spacing)
             .setIncludePad(false)
             .build()
     }
@@ -133,6 +148,7 @@ class PaperLayout(context: Context) {
         private fun apply(p: TextPaint) {
             val bold = p.typeface?.isBold == true || p.isFakeBoldText
             p.typeface = tf
+            p.textSize = p.textSize * BANGLA_SCALE
             if (bold) p.isFakeBoldText = true
         }
     }
@@ -154,172 +170,216 @@ class PaperLayout(context: Context) {
         val groupText = opts.groupText.ifBlank { summary.groupLabel.orEmpty() }
         val statsOnly = opts.content == ReportContent.STATS_ONLY
 
-        fun newPage(): PaperPage {
-            val page = PaperPage()
-            pages += page
-            val footer = layout(
-                "Vocabox  \u00B7  Page ${pages.size}", paint(8f, MUTED), CONTENT_W,
-                Layout.Alignment.ALIGN_CENTER
-            )
-            page.text(footer, MARGIN, PAGE_H - MARGIN + 4f)
-            return page
+        fun newPage(): PaperPage = PaperPage().also { pages += it }
+
+        /** "Page 01/03", right aligned in the bottom margin (added last, when the count is known). */
+        fun addFooters() {
+            pages.forEachIndexed { i, pg ->
+                val text = String.format(Locale.US, "Page %02d/%02d", i + 1, pages.size)
+                val l = layout(text, paint(8.5f, INK.withAlpha(0.6f)), CONTENT_W, Layout.Alignment.ALIGN_OPPOSITE)
+                pg.text(l, MARGIN, PAGE_H - FOOTER_BOTTOM - l.height)
+            }
         }
 
         var page = newPage()
-        var y = MARGIN
 
-        // ---- Heading ---------------------------------------------------------------------
-        val logoSize = 38f
-        var brandX = MARGIN
-        if (opts.showLogo) {
-            val bmp = logo
-            val bg = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = logoBg }
-            val startY = y
-            page.add { c ->
-                c.drawRoundRect(RectF(MARGIN, startY, MARGIN + logoSize, startY + logoSize), 9f, 9f, bg)
-                if (bmp != null) {
-                    // The launcher foreground has a safe-zone margin; crop to the middle.
-                    val inset = bmp.width * 0.17f
-                    val src = android.graphics.Rect(
-                        inset.toInt(), inset.toInt(), (bmp.width - inset).toInt(), (bmp.height - inset).toInt()
-                    )
-                    c.drawBitmap(
-                        bmp, src,
-                        RectF(MARGIN, startY, MARGIN + logoSize, startY + logoSize),
-                        Paint(Paint.FILTER_BITMAP_FLAG)
-                    )
-                }
-            }
-            brandX += logoSize + 10f
-        }
-        val brand = layout("Vocabox", paint(24f, ACCENT, bold = true), 200f)
-        page.text(brand, brandX, y + (logoSize - brand.height) / 2f)
-        if (opts.showDate) {
-            val date = SimpleDateFormat("d MMM yyyy", Locale.getDefault()).format(Date())
-            val dl = layout(date, paint(9f, MUTED), 150f, Layout.Alignment.ALIGN_OPPOSITE)
-            page.text(dl, PAGE_W - MARGIN - 150f, y + (logoSize - dl.height) / 2f)
-        }
-        y += logoSize + 10f
-        page.line(MARGIN, y, PAGE_W - MARGIN, y, 1.2f)
-        y += 12f
+        // ---- Heading (first page only) ------------------------------------------------------
+        var y = drawHeader(page, MARGIN, title, groupText, opts, stats, showStats = opts.showStats || statsOnly)
 
-        val titleL = layout(title, paint(17f, INK, bold = true), CONTENT_W, Layout.Alignment.ALIGN_CENTER)
-        page.text(titleL, MARGIN, y)
-        y += titleL.height + 3f
-        if (groupText.isNotBlank()) {
-            val gl = layout(groupText, paint(11f, MUTED), CONTENT_W, Layout.Alignment.ALIGN_CENTER)
-            page.text(gl, MARGIN, y)
-            y += gl.height + 3f
-        }
-        y += 8f
-
-        if (opts.showStats || statsOnly) {
-            y = drawStatsTable(page, y, stats)
-            if (stats.skipped > 0) {
-                val note = layout(
-                    "Wrong includes ${stats.skipped} unanswered question${if (stats.skipped == 1) "" else "s"} (no negative mark).",
-                    paint(8f, MUTED, italic = true), CONTENT_W
-                )
-                page.text(note, MARGIN, y + 3f)
-                y += note.height + 6f
-            }
-            y += 8f
-        }
-
-        // ---- Statistics-only extra: result by mode --------------------------------------
+        // ---- Statistics-only extra: result by mode ----------------------------------------
         if (statsOnly) {
-            y = drawModeTable(page, y, summary)
+            drawModeTable(page, y, summary)
+            addFooters()
             return pages
         }
 
         // ---- MCQ paper -------------------------------------------------------------------
-        page.line(MARGIN, y, PAGE_W - MARGIN, y, 0.7f)
-        y += 10f
-
-        val columns = opts.columns.coerceIn(1, 2)
-        val colW = (CONTENT_W - COLUMN_GAP * (columns - 1)) / columns
-        var colTop = y
-        var cy = y
-        var col = 0
-        var usedBottom = y
-
-        fun closePage() {
-            if (columns == 2) {
-                page.line(MARGIN + colW + COLUMN_GAP / 2f, colTop, MARGIN + colW + COLUMN_GAP / 2f, usedBottom, 0.5f)
-            }
-        }
-
-        fun nextSlot() {
-            col++
-            if (col >= columns) {
-                closePage()
-                page = newPage()
-                val running = layout("Vocabox  \u00B7  $title", paint(8.5f, MUTED), CONTENT_W)
-                page.text(running, MARGIN, MARGIN - 6f)
-                page.line(MARGIN, MARGIN + running.height - 1f, PAGE_W - MARGIN, MARGIN + running.height - 1f, 0.5f)
-                colTop = MARGIN + running.height + 8f
-                col = 0
-            }
-            cy = colTop
-            usedBottom = colTop
-        }
-
         val numbered = summary.items.mapIndexed { i, item -> (i + 1) to item }
             .filter { opts.scope == PaperScope.ALL || !it.second.isCorrect }
 
         if (numbered.isEmpty()) {
-            val l = layout("No questions to show.", paint(11f, MUTED, italic = true), CONTENT_W, Layout.Alignment.ALIGN_CENTER)
-            page.text(l, MARGIN, cy + 10f)
+            val l = layout("No questions to show.", paint(11f, INK.withAlpha(0.6f), italic = true), CONTENT_W, Layout.Alignment.ALIGN_CENTER)
+            page.text(l, MARGIN, y + 10f)
+            addFooters()
             return pages
         }
 
-        for ((number, item) in numbered) {
-            val block = questionBlock(item, number, colW, opts, scale)
-            if (cy + block.height > BOTTOM && cy > colTop) nextSlot()
-            val x = MARGIN + col * (colW + COLUMN_GAP)
-            val top = cy
-            page.add { c -> block.draw(c, x, top) }
-            cy += block.height + 10f
-            usedBottom = maxOf(usedBottom, cy - 6f)
+        val columns = opts.columns.coerceIn(1, 2)
+        val colW = (CONTENT_W - COLUMN_GAP * (columns - 1)) / columns
+        val blocks = numbered.map { (number, item) -> questionBlock(item, number, colW, opts, scale) }
+        // Height of each block including the gap under it (the same bookkeeping Examcamp uses).
+        val heights = blocks.map { it.height + QUESTION_GAP }
+
+        /**
+         * With two columns the first blocks go to the left column and the rest to the right one.
+         * Of all the splits that fit, the one that makes the taller column shortest wins, so the
+         * two columns end up about the same height.
+         */
+        fun bestSplit(run: List<Float>, capacity: Float): Int? {
+            if (columns == 1) return if (run.sum() <= capacity) run.size else null
+            val total = run.sum()
+            var best: Int? = null
+            var bestTall = Float.MAX_VALUE
+            var left = 0f
+            for (split in 0..run.size) {
+                if (split > 0) left += run[split - 1]
+                val right = total - left
+                if (left <= capacity && right <= capacity) {
+                    val tall = maxOf(left, right)
+                    if (tall < bestTall) { bestTall = tall; best = split }
+                }
+            }
+            return best
         }
-        closePage()
+
+        var cursor = 0
+        var pageIndex = 0
+        while (cursor < blocks.size) {
+            if (pageIndex > 0) { page = newPage(); y = MARGIN }
+            val capacity = BOTTOM - y
+
+            // Grow the run while some split still fits; a page always keeps at least one question.
+            var runEnd = cursor + 1
+            var split = bestSplit(heights.subList(cursor, runEnd), capacity) ?: 1
+            while (runEnd < blocks.size) {
+                val candidate = bestSplit(heights.subList(cursor, runEnd + 1), capacity) ?: break
+                runEnd += 1
+                split = candidate
+            }
+
+            var col = 0
+            var cy = y
+            for (k in cursor until runEnd) {
+                if (k - cursor == split && columns == 2) { col = 1; cy = y }
+                val x = MARGIN + col * (colW + COLUMN_GAP)
+                val block = blocks[k]
+                val top = cy
+                page.add { c -> block.draw(c, x, top) }
+                cy += heights[k]
+            }
+            cursor = runEnd
+            pageIndex++
+        }
+        addFooters()
         return pages
     }
 
-    // ---- Statistics ---------------------------------------------------------------------
+    // ---- Header --------------------------------------------------------------------------
 
-    private fun drawStatsTable(page: PaperPage, top: Float, s: ReportStats): Float {
-        val cells = listOf(
-            Triple("Correct", s.correct.toString(), GREEN),
-            Triple("Wrong", s.wrong.toString(), RED),
-            Triple("Marks obtained", "${formatMarks(s.obtained)} / ${s.total}", INK),
-            Triple("Negative marks", if (s.negative > 0) "-" + formatMarks(s.negative) else "0", RED),
-            Triple("Time", formatDuration(s.durationSec), INK),
-            Triple("Percentage", "${s.percent}%", ACCENT)
-        )
-        val cols = 3
-        val rows = 2
-        val cellW = CONTENT_W / cols
-        val cellH = 44f
-        val grid = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = LINE; style = Paint.Style.STROKE; strokeWidth = 0.9f
+    /**
+     * Subject and topic on the left, the logo and name on the right, then one line of result
+     * figures separated by bars and a thin grey rule. Returns the y where the questions start.
+     */
+    private fun drawHeader(
+        page: PaperPage,
+        top: Float,
+        title: String,
+        groupText: String,
+        opts: ReportOptions,
+        stats: ReportStats,
+        showStats: Boolean
+    ): Float {
+        var y = top
+        val logoSize = 18.4f
+        val brandPaint = paint(13f, ACCENT, bold = true)
+        val brandTextW = brandPaint.measureText("Vocabox")
+        val brandW = if (opts.showLogo) logoSize + 5f + brandTextW else 0f
+        val date = if (opts.showDate) SimpleDateFormat("d MMM yyyy", Locale.getDefault()).format(Date()) else null
+        val dateW = if (date != null) 90f else 0f
+        val rightW = maxOf(brandW, dateW)
+
+        val titleW = if (rightW > 0f) CONTENT_W - rightW - COLUMN_GAP else CONTENT_W
+        val titleL = layout(title, paint(15f, INK, bold = true), titleW)
+        val topicL = if (groupText.isNotBlank())
+            layout(groupText, paint(10.5f, INK.withAlpha(0.75f)), titleW) else null
+        val titlesH = titleL.height + (topicL?.let { 2.8f + it.height } ?: 0f)
+
+        val dateL = date?.let { layout(it, paint(8.5f, INK.withAlpha(0.6f)), rightW, Layout.Alignment.ALIGN_OPPOSITE) }
+        val brandH = if (opts.showLogo) logoSize else 0f
+        val rightH = brandH + (dateL?.let { (if (brandH > 0f) 3f else 0f) + it.height } ?: 0f)
+        val rowH = maxOf(titlesH, rightH)
+
+        val titlesTop = y + (rowH - titlesH) / 2f
+        page.text(titleL, MARGIN, titlesTop)
+        if (topicL != null) page.text(topicL, MARGIN, titlesTop + titleL.height + 2.8f)
+
+        var ry = y + (rowH - rightH) / 2f
+        if (opts.showLogo) {
+            val bx = PAGE_W - MARGIN - brandW
+            drawLogo(page, bx, ry, logoSize)
+            val wm = layout("Vocabox", brandPaint, brandTextW + 4f)
+            page.text(wm, bx + logoSize + 5f, ry + (logoSize - wm.height) / 2f)
+            ry += logoSize + 3f
         }
-        val fill = Paint().apply { color = TINT }
+        if (dateL != null) page.text(dateL, PAGE_W - MARGIN - rightW, ry)
+        y += rowH
+
+        if (showStats) {
+            y += 8.5f
+            y = drawStatsLine(page, y, stats)
+            y += 8.5f
+        } else {
+            y += 8.5f
+        }
+        page.line(MARGIN, y, PAGE_W - MARGIN, y, 0.75f)
+        return y + 17f
+    }
+
+    private fun drawLogo(page: PaperPage, x: Float, y: Float, size: Float) {
+        val bmp = logo
+        val bg = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = logoBg }
         page.add { c ->
-            c.drawRect(MARGIN, top, MARGIN + CONTENT_W, top + cellH * rows, fill)
-            c.drawRect(MARGIN, top, MARGIN + CONTENT_W, top + cellH * rows, grid)
-            for (i in 1 until cols) c.drawLine(MARGIN + cellW * i, top, MARGIN + cellW * i, top + cellH * rows, grid)
-            for (r in 1 until rows) c.drawLine(MARGIN, top + cellH * r, MARGIN + CONTENT_W, top + cellH * r, grid)
+            c.drawRoundRect(RectF(x, y, x + size, y + size), size * 0.24f, size * 0.24f, bg)
+            if (bmp != null) {
+                // The launcher foreground has a safe-zone margin; crop to the middle.
+                val inset = bmp.width * 0.17f
+                val src = android.graphics.Rect(
+                    inset.toInt(), inset.toInt(), (bmp.width - inset).toInt(), (bmp.height - inset).toInt()
+                )
+                c.drawBitmap(bmp, src, RectF(x, y, x + size, y + size), Paint(Paint.FILTER_BITMAP_FLAG))
+            }
         }
-        cells.forEachIndexed { i, (label, value, color) ->
-            val x = MARGIN + (i % cols) * cellW
-            val y = top + (i / cols) * cellH
-            val ll = layout(label, paint(8.5f, MUTED), cellW, Layout.Alignment.ALIGN_CENTER)
-            val vl = layout(value, paint(15f, color, bold = true), cellW, Layout.Alignment.ALIGN_CENTER)
-            page.text(ll, x, y + 7f)
-            page.text(vl, x, y + 7f + ll.height + 3f)
+    }
+
+    /** "Obtained Marks: 7 | Correct: 8 | Wrong: 1 | Skipped: 1 | Negative Marks: 0.25 | Percentage: 77%" */
+    private fun drawStatsLine(page: PaperPage, top: Float, s: ReportStats): Float {
+        val wrongAnswered = s.wrong - s.skipped
+        val labels = listOf(
+            "Obtained Marks: ${formatMarks(s.obtained)}",
+            "Correct: ${s.correct}",
+            "Wrong: $wrongAnswered",
+            "Skipped: ${s.skipped}",
+            "Negative Marks: ${formatMarks(s.negative)}",
+            "Percentage: ${s.percent}%"
+        )
+        // One line, as large as 9pt but shrunk if the figures would not fit the page width.
+        var size = 9f
+        var boldP = paint(size, INK, bold = true)
+        var sepP = paint(size, INK.withAlpha(0.4f))
+        var widths = labels.map { boldP.measureText(it) } + List(labels.size - 1) { sepP.measureText("|") }
+        while (widths.sum() > CONTENT_W && size > 6f) {
+            size -= 0.25f
+            boldP = paint(size, INK, bold = true)
+            sepP = paint(size, INK.withAlpha(0.4f))
+            widths = labels.map { boldP.measureText(it) } + List(labels.size - 1) { sepP.measureText("|") }
         }
-        return top + cellH * rows
+        val itemCount = labels.size * 2 - 1
+        val gap = ((CONTENT_W - widths.sum()) / (itemCount - 1)).coerceAtLeast(0f)
+        val fm = boldP.fontMetrics
+        val pad = 3.75f
+        val baseline = top + pad - fm.ascent
+        var x = MARGIN
+        labels.forEachIndexed { i, label ->
+            val lx = x
+            page.add { c -> c.drawText(label, lx, baseline, boldP) }
+            x += boldP.measureText(label) + gap
+            if (i < labels.size - 1) {
+                val sx = x
+                page.add { c -> c.drawText("|", sx, baseline, sepP) }
+                x += sepP.measureText("|") + gap
+            }
+        }
+        return top + pad * 2 + (fm.descent - fm.ascent)
     }
 
     private fun drawModeTable(page: PaperPage, top: Float, summary: QuizSummary): Float {
@@ -329,7 +389,7 @@ class PaperLayout(context: Context) {
         }
         if (byMode.isEmpty()) return top
         var y = top + 6f
-        val head = layout("Result by category", paint(11f, ACCENT, bold = true), CONTENT_W)
+        val head = layout("Result by category", paint(11f, INK, bold = true), CONTENT_W)
         page.text(head, MARGIN, y)
         y += head.height + 6f
         val wName = CONTENT_W * 0.55f
@@ -360,6 +420,17 @@ class PaperLayout(context: Context) {
 
     private class Block(val height: Float, val draw: (Canvas, Float, Float) -> Unit)
 
+    /** Width of [text] on one line, used to decide how the options can be arranged. */
+    private fun naturalWidth(text: CharSequence, paint: TextPaint): Float {
+        val l = layout(text, paint, 100_000f)
+        return if (l.lineCount > 0) l.getLineWidth(0) else 0f
+    }
+
+    /**
+     * "01. Question" in bold, the options as "A. text" (right one green, a wrong pick red), and
+     * the explanation under it. The options use the most compact arrangement whose texts all fit
+     * on one line: all in a row, two by two, or one under the other.
+     */
     private fun questionBlock(
         item: AnsweredQuestion,
         number: Int,
@@ -379,97 +450,63 @@ class PaperLayout(context: Context) {
             h += l.height
         }
 
-        if (q.instruction.isNotBlank()) {
-            add(layout(q.instruction, paint(8f * scale, MUTED, italic = true), width))
-            h += 1f
-        }
-
-        val prompt = SpannableStringBuilder("$number. ${q.prompt}")
-        prompt.setSpan(StyleSpan(Typeface.BOLD), 0, prompt.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        val head = SpannableStringBuilder(String.format(Locale.US, "%02d. ", number))
+        if (q.instruction.isNotBlank()) head.append("${q.instruction}: ")
+        head.append(q.prompt)
+        head.setSpan(StyleSpan(Typeface.BOLD), 0, head.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         if (q.hint.isNotBlank()) {
-            val start = prompt.length
-            prompt.append("  (${q.hint})")
-            prompt.setSpan(StyleSpan(Typeface.ITALIC), start, prompt.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            prompt.setSpan(ForegroundColorSpan(MUTED), start, prompt.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            prompt.setSpan(RelativeSizeSpan(0.85f), start, prompt.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            val start = head.length
+            head.append("  (${q.hint})")
+            head.setSpan(StyleSpan(Typeface.ITALIC), start, head.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            head.setSpan(ForegroundColorSpan(INK.withAlpha(0.7f)), start, head.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            head.setSpan(RelativeSizeSpan(0.85f), start, head.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
-        add(layout(prompt, paint(10f * scale, INK), width))
-        h += 4f
+        add(layout(head, paint(10f * scale, INK), width, spacing = BODY_SPACING))
+        h += OPT_MARGIN
 
-        val radius = 6.5f * scale
-        val indent = radius * 2 + 6f
-        q.options.forEachIndexed { i, option ->
-            val isCorrect = i == q.correctIndex
-            val isMine = showMine && item.selected == i && !isCorrect
-            val l = layout(option, paint(10f * scale, INK, bold = showAnswers && isCorrect), width - indent)
-            val top = h
-            val fill = when {
-                showAnswers && isCorrect -> GREEN
-                isMine -> RED
-                else -> null
-            }
-            val letter = ('A' + i).toString()
-            val circle = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                if (fill != null) { color = fill; style = Paint.Style.FILL }
-                else { color = MUTED; style = Paint.Style.STROKE; strokeWidth = 0.9f }
-            }
-            val letterPaint = paint(7.5f * scale, if (fill != null) 0xFFFFFFFF.toInt() else INK, bold = true)
-                .apply { textAlign = Paint.Align.CENTER }
-            draws += { c, x, y ->
-                val cy = y + top + (l.getLineBottom(0) / 2f)
-                c.drawCircle(x + radius, cy, radius, circle)
-                val fm = letterPaint.fontMetrics
-                c.drawText(letter, x + radius, cy - (fm.ascent + fm.descent) / 2f, letterPaint)
-                c.save(); c.translate(x + indent, y + top); l.draw(c); c.restore()
-            }
-            h += l.height + 3f
+        // Options: text and paint for each, then the arrangement.
+        val avail = width - OPT_INDENT
+        val texts = q.options.mapIndexed { i, option ->
+            val isCorrect = showAnswers && i == q.correctIndex
+            val isMine = showMine && item.selected == i && i != q.correctIndex
+            val p = paint(
+                10f * scale,
+                when { isCorrect -> GREEN; isMine -> RED; else -> INK },
+                bold = isCorrect || isMine
+            )
+            "${'A' + i}. $option" to p
         }
-
-        if (showAnswers) {
-            val letter = ('A' + q.correctIndex).toString()
-            val line = SpannableStringBuilder("Answer: $letter")
-            line.setSpan(StyleSpan(Typeface.BOLD), 0, line.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            line.setSpan(ForegroundColorSpan(GREEN), 0, line.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            if (showMine) {
-                val mine = when {
-                    item.selected < 0 -> "not answered"
-                    item.isCorrect -> null
-                    else -> ('A' + item.selected).toString()
-                }
-                if (mine != null) {
-                    val s = line.length
-                    line.append("    Your answer: $mine")
-                    line.setSpan(ForegroundColorSpan(RED), s, line.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
+        fun fits(cols: Int): Boolean {
+            val cellW = (avail - OPT_GAP_X * (cols - 1)) / cols
+            return texts.all { (t, p) -> naturalWidth(t, p) + 1f <= cellW }
+        }
+        val cols = when {
+            texts.size in 2..4 && fits(texts.size) -> texts.size
+            texts.size > 2 && fits(2) -> 2
+            else -> 1
+        }
+        val cellW = (avail - OPT_GAP_X * (cols - 1)) / cols
+        texts.chunked(cols).forEachIndexed { r, row ->
+            if (r > 0 && cols > 1) h += OPT_GAP_Y
+            val ls = row.map { (t, p) -> layout(t, p, cellW, spacing = BODY_SPACING) }
+            val rowTop = h
+            ls.forEachIndexed { k, l ->
+                val dx = OPT_INDENT + k * (cellW + OPT_GAP_X)
+                draws += { c, x, y -> c.save(); c.translate(x + dx, y + rowTop); l.draw(c); c.restore() }
             }
-            add(layout(line, paint(10f * scale, INK), width))
+            h += ls.maxOf { it.height }
         }
 
         if (opts.paperType == PaperType.WITH_EXPLANATION) {
-            h += 4f
-            val pad = 5f
-            val ex = SpannableStringBuilder()
-            q.explanation.lines().filter { it.isNotBlank() }.map { it.replace("**", "") }.forEachIndexed { idx, ln ->
-                if (idx > 0) ex.append('\n')
-                val start = ex.length
-                ex.append(ln)
-                val boldEnd = if (idx == 0) ex.length else {
-                    val colon = ln.indexOf(':')
-                    if (colon in 1..12) start + colon + 1 else if (ln == "Examples") ex.length else start
-                }
-                if (boldEnd > start) ex.setSpan(StyleSpan(Typeface.BOLD), start, boldEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            val lines = q.explanation.lines().filter { it.isNotBlank() }.map { it.replace("**", "") }
+            if (lines.isNotEmpty()) {
+                h += OPT_MARGIN
+                val label = "Explanation: "
+                val ex = SpannableStringBuilder(label)
+                ex.setSpan(StyleSpan(Typeface.BOLD), 0, label.length - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                ex.append(lines.joinToString("\n"))
+                add(layout(ex, paint(10f * scale, INK.withAlpha(0.8f)), width, spacing = BODY_SPACING))
             }
-            val l = layout(ex, paint(10f * scale, INK), width - pad * 2 - 3f)
-            val top = h
-            val boxH = l.height + pad * 2
-            val bg = Paint().apply { color = TINT }
-            val bar = Paint().apply { color = ACCENT }
-            draws += { c, x, y ->
-                c.drawRect(x, y + top, x + width, y + top + boxH, bg)
-                c.drawRect(x, y + top, x + 2f, y + top + boxH, bar)
-                c.save(); c.translate(x + pad + 3f, y + top + pad); l.draw(c); c.restore()
-            }
-            h += boxH
         }
 
         return Block(h) { c, x, y -> draws.forEach { it(c, x, y) } }

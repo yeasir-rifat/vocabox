@@ -50,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vocabulary.app.data.local.entity.WordEntity
@@ -152,7 +153,6 @@ fun GroupsScreen(
             showAppearance = true,
             onOptionsChange = viewModel::setOptions,
             onTypeSelected = viewModel::onTypeSelected,
-            onLevelSelected = viewModel::onLevelSelected,
             onShuffleAgain = viewModel::shuffleAgain,
             onReset = viewModel::resetOptions,
             onClose = { settingsOpen = false }
@@ -364,7 +364,7 @@ private fun WordListCard(word: WordEntity, read: Boolean, onClick: () -> Unit) {
                     // Recall prompt: the phrase only. The word and its meaning are revealed in the popup.
                     Text(
                         text = word.englishMeaning,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp, lineHeight = 28.sp),
                         fontFamily = TimesNewRoman,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis
@@ -390,6 +390,7 @@ private fun WordListCard(word: WordEntity, read: Boolean, onClick: () -> Unit) {
                                 append("  ")
                                 withStyle(
                                     SpanStyle(
+                                        fontSize = 14.sp,
                                         fontStyle = FontStyle.Italic,
                                         fontWeight = FontWeight.Normal,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -397,7 +398,7 @@ private fun WordListCard(word: WordEntity, read: Boolean, onClick: () -> Unit) {
                                 ) { append(pos) }
                             }
                         },
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp, lineHeight = 28.sp),
                         fontFamily = TimesNewRoman,
                         maxLines = if (word.isPhrase()) 2 else 1,
                         overflow = TextOverflow.Ellipsis
@@ -405,7 +406,7 @@ private fun WordListCard(word: WordEntity, read: Boolean, onClick: () -> Unit) {
                     Text(
                         text = word.banglaMeaningLine().bn(),
                         fontFamily = TimesNewRoman,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 17.sp, lineHeight = 26.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis

@@ -71,7 +71,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.vocabulary.app.data.local.entity.WordEntity
-import com.vocabulary.app.ui.components.LevelBadge
 import com.vocabulary.app.ui.components.shortPartOfSpeech
 import com.vocabulary.app.ui.components.singularLabel
 import kotlinx.coroutines.launch
@@ -453,66 +452,77 @@ private fun CardBack(
     val pos = word.posLabel()
     val bangla = word.banglaMeaningLine()
     Column(modifier = Modifier.fillMaxSize()) {
-        // Header: the word with its part of speech, and the star and speaker in the corner.
+        // Header: the word with its part of speech, the star and speaker in the corner, and the
+        // English meaning right under the word.
+        val title = buildAnnotatedString {
+            withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
+                append(word.word)
+            }
+            if (pos.isNotEmpty()) {
+                append("  ")
+                withStyle(
+                    SpanStyle(
+                        fontSize = 14.sp,
+                        fontStyle = FontStyle.Italic,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                ) { append(pos) }
+            }
+        }
+        val titleStyle = MaterialTheme.typography.headlineMedium.copy(fontSize = 32.sp, lineHeight = 40.sp)
+        // Top-aligned: the star and speaker stay level with the first line of the title, and a long
+        // title wraps downwards instead of pushing its first line up.
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 24.dp, end = 4.dp, top = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             Text(
-                text = buildAnnotatedString {
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
-                        append(word.word)
-                    }
-                    if (pos.isNotEmpty()) {
-                        append("  ")
-                        withStyle(
-                            SpanStyle(
-                                fontSize = 14.sp,
-                                fontStyle = FontStyle.Italic,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        ) { append(pos) }
-                    }
-                },
-                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 32.sp, lineHeight = 40.sp),
+                text = title,
+                style = titleStyle,
                 fontFamily = TimesNewRoman,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 8.dp)
+                    .padding(top = 4.dp, end = 8.dp)
             )
             CardActions(word, onSpeak, isBookmarked, onToggleBookmark)
         }
+        if (word.englishMeaning.isNotBlank()) {
+            Text(
+                text = word.englishMeaning,
+                style = MaterialTheme.typography.bodyLarge,
+                fontFamily = TimesNewRoman,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 12.dp)
+            )
+        }
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 24.dp),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
+        )
         Column(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 24.dp),
+                .padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Meaning block: Bangla first, English under it.
+            // Meaning block: the Bangla meaning (the English one is in the header).
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
                     text = bangla.bn(),
                     fontFamily = TimesNewRoman,
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontSize = meaningFontSize(bangla),
-                        lineHeight = meaningFontSize(bangla) * 1.45f
+                        lineHeight = meaningFontSize(bangla) * 1.5f
                     )
-                )
-                Text(
-                    text = word.englishMeaning,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontFamily = TimesNewRoman,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             if (synonyms.isNotEmpty()) {
