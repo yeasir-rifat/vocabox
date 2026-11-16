@@ -1,0 +1,1807 @@
+{
+  "version": 7,
+  "words": [
+    {
+      "id": 1,
+      "word": "abandon",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "ত্যাগ করা",
+      "englishMeaning": "to leave someone or something completely",
+      "synonyms": [
+        "forsake",
+        "desert",
+        "relinquish"
+      ],
+      "synonymsBn": [
+        "পরিত্যাগ করা",
+        "ত্যাগ করে চলে যাওয়া",
+        "ছেড়ে দেওয়া"
+      ],
+      "antonyms": [
+        "keep",
+        "retain",
+        "cherish"
+      ],
+      "antonymsBn": [
+        "রাখা",
+        "ধরে রাখা",
+        "লালন করা"
+      ],
+      "example": "The villagers had to abandon their homes when the river flooded.",
+      "topic": "Daily Life",
+      "level": 1,
+      "type": "WORD",
+      "questions": [
+        {
+          "type": "MEANING",
+          "text": "In the sentence “{example}”, the word ‘{word}’ means —"
+        },
+        {
+          "type": "MEANING",
+          "text": "Choose the correct Bangla meaning of ‘{word}’."
+        },
+        {
+          "type": "SYNONYM",
+          "text": "Choose the correct synonym of ‘{word}’.",
+          "options": [
+            "forsake",
+            "embrace",
+            "adopt",
+            "welcome"
+          ],
+          "answer": "forsake"
+        },
+        {
+          "type": "ANTONYM",
+          "text": "Choose the correct antonym of ‘{word}’."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "word": "abundant",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "প্রচুর",
+      "englishMeaning": "existing in large quantities",
+      "synonyms": [
+        "plentiful",
+        "ample",
+        "copious"
+      ],
+      "synonymsBn": [
+        "প্রচুর",
+        "পর্যাপ্ত",
+        "অজস্র"
+      ],
+      "antonyms": [
+        "scarce",
+        "meager"
+      ],
+      "antonymsBn": [
+        "দুষ্প্রাপ্য",
+        "অপ্রতুল"
+      ],
+      "example": "Bangladesh has abundant fertile land along its rivers.",
+      "topic": "Daily Life",
+      "level": 1,
+      "type": "WORD",
+      "questions": [
+        {
+          "type": "MEANING",
+          "text": "Choose the correct Bangla meaning of ‘{word}’."
+        },
+        {
+          "type": "SYNONYM",
+          "text": "Synonym of ‘{word}’ is —"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "word": "benevolent",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "পরোপকারী; দয়ালু",
+      "englishMeaning": "kind and generous toward others",
+      "synonyms": [
+        "kind",
+        "charitable",
+        "generous"
+      ],
+      "synonymsBn": [
+        "দয়ালু",
+        "দানশীল",
+        "উদার"
+      ],
+      "antonyms": [
+        "malevolent",
+        "cruel"
+      ],
+      "antonymsBn": [
+        "অনিষ্টকামী",
+        "নিষ্ঠুর"
+      ],
+      "example": "The benevolent doctor treated poor patients for free.",
+      "topic": "Personality",
+      "level": 2,
+      "type": "WORD"
+    },
+    {
+      "id": 4,
+      "word": "candid",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "অকপট; স্পষ্টবাদী",
+      "englishMeaning": "honest and straightforward in speech",
+      "synonyms": [
+        "frank",
+        "honest",
+        "outspoken"
+      ],
+      "synonymsBn": [
+        "অকপট",
+        "সৎ",
+        "স্পষ্টভাষী"
+      ],
+      "antonyms": [
+        "evasive",
+        "deceitful"
+      ],
+      "antonymsBn": [
+        "এড়িয়ে চলা স্বভাবের",
+        "প্রতারক"
+      ],
+      "example": "She gave a candid answer about her mistakes.",
+      "topic": "Personality",
+      "level": 2,
+      "type": "WORD"
+    },
+    {
+      "id": 5,
+      "word": "diligent",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "পরিশ্রমী",
+      "englishMeaning": "showing steady and careful effort",
+      "synonyms": [
+        "industrious",
+        "assiduous",
+        "hardworking"
+      ],
+      "synonymsBn": [
+        "শ্রমশীল",
+        "অধ্যবসায়ী",
+        "কঠোর পরিশ্রমী"
+      ],
+      "antonyms": [
+        "lazy",
+        "indolent"
+      ],
+      "antonymsBn": [
+        "অলস",
+        "কুঁড়ে"
+      ],
+      "example": "A diligent student revises every lesson regularly.",
+      "topic": "Personality",
+      "level": 1,
+      "type": "WORD"
+    },
+    {
+      "id": 6,
+      "word": "eloquent",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "বাকপটু",
+      "englishMeaning": "able to speak clearly and persuasively",
+      "synonyms": [
+        "articulate",
+        "fluent",
+        "expressive"
+      ],
+      "synonymsBn": [
+        "সুস্পষ্টভাষী",
+        "সাবলীল",
+        "ভাবব্যঞ্জক"
+      ],
+      "antonyms": [
+        "inarticulate",
+        "tongue-tied"
+      ],
+      "antonymsBn": [
+        "অস্পষ্টভাষী",
+        "কথা আটকে যাওয়া"
+      ],
+      "example": "The eloquent speaker moved the whole audience.",
+      "topic": "Personality",
+      "level": 2,
+      "type": "WORD"
+    },
+    {
+      "id": 7,
+      "word": "frugal",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "মিতব্যয়ী",
+      "englishMeaning": "careful about spending money",
+      "synonyms": [
+        "thrifty",
+        "economical",
+        "sparing"
+      ],
+      "synonymsBn": [
+        "সঞ্চয়ী",
+        "মিতব্যয়ী",
+        "সংযমী"
+      ],
+      "antonyms": [
+        "extravagant",
+        "wasteful"
+      ],
+      "antonymsBn": [
+        "অমিতব্যয়ী",
+        "অপচয়কারী"
+      ],
+      "example": "Living a frugal life helped him save for his studies.",
+      "topic": "Personality",
+      "level": 2,
+      "type": "WORD"
+    },
+    {
+      "id": 8,
+      "word": "gregarious",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "মিশুক",
+      "englishMeaning": "fond of company; sociable",
+      "synonyms": [
+        "sociable",
+        "outgoing",
+        "friendly"
+      ],
+      "synonymsBn": [
+        "সামাজিক",
+        "বহির্মুখী",
+        "বন্ধুসুলভ"
+      ],
+      "antonyms": [
+        "reserved",
+        "solitary"
+      ],
+      "antonymsBn": [
+        "স্বল্পভাষী",
+        "একাকী"
+      ],
+      "example": "Her gregarious nature made her popular in the hostel.",
+      "topic": "Personality",
+      "level": 3,
+      "type": "WORD"
+    },
+    {
+      "id": 9,
+      "word": "hostile",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "শত্রুভাবাপন্ন",
+      "englishMeaning": "unfriendly and aggressive",
+      "synonyms": [
+        "antagonistic",
+        "unfriendly",
+        "aggressive"
+      ],
+      "synonymsBn": [
+        "বিরোধী",
+        "অবন্ধুসুলভ",
+        "আগ্রাসী"
+      ],
+      "antonyms": [
+        "friendly",
+        "amicable"
+      ],
+      "antonymsBn": [
+        "বন্ধুত্বপূর্ণ",
+        "সৌহার্দ্যপূর্ণ"
+      ],
+      "example": "The crowd turned hostile after the announcement.",
+      "topic": "Daily Life",
+      "level": 2,
+      "type": "WORD"
+    },
+    {
+      "id": 10,
+      "word": "impartial",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "নিরপেক্ষ",
+      "englishMeaning": "treating all sides equally",
+      "synonyms": [
+        "unbiased",
+        "neutral",
+        "fair"
+      ],
+      "synonymsBn": [
+        "পক্ষপাতহীন",
+        "নিরপেক্ষ",
+        "ন্যায্য"
+      ],
+      "antonyms": [
+        "biased",
+        "partial"
+      ],
+      "antonymsBn": [
+        "পক্ষপাতদুষ্ট",
+        "একতরফা"
+      ],
+      "example": "A judge must remain impartial during a trial.",
+      "topic": "Academic",
+      "level": 2,
+      "type": "WORD"
+    },
+    {
+      "id": 11,
+      "word": "jeopardy",
+      "partOfSpeech": "noun",
+      "banglaMeaning": "বিপদ; ঝুঁকি",
+      "englishMeaning": "danger of loss or harm",
+      "synonyms": [
+        "danger",
+        "peril",
+        "risk"
+      ],
+      "synonymsBn": [
+        "বিপদ",
+        "সংকট",
+        "ঝুঁকি"
+      ],
+      "antonyms": [
+        "safety",
+        "security"
+      ],
+      "antonymsBn": [
+        "নিরাপত্তা",
+        "সুরক্ষা"
+      ],
+      "example": "Heavy rain put the whole harvest in jeopardy.",
+      "topic": "Academic",
+      "level": 2,
+      "type": "WORD"
+    },
+    {
+      "id": 12,
+      "word": "keen",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "উৎসুক; তীক্ষ্ণ",
+      "englishMeaning": "eager or very sharp",
+      "synonyms": [
+        "eager",
+        "enthusiastic",
+        "sharp"
+      ],
+      "synonymsBn": [
+        "আগ্রহী",
+        "উৎসাহী",
+        "ধারালো"
+      ],
+      "antonyms": [
+        "indifferent",
+        "dull"
+      ],
+      "antonymsBn": [
+        "উদাসীন",
+        "ভোঁতা"
+      ],
+      "example": "He is keen to learn new farming techniques.",
+      "topic": "Daily Life",
+      "level": 1,
+      "type": "WORD"
+    },
+    {
+      "id": 13,
+      "word": "lucid",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "স্পষ্ট; বোধগম্য",
+      "englishMeaning": "clearly expressed and easy to understand",
+      "synonyms": [
+        "clear",
+        "intelligible",
+        "coherent"
+      ],
+      "synonymsBn": [
+        "পরিষ্কার",
+        "বোধগম্য",
+        "সুসংগত"
+      ],
+      "antonyms": [
+        "obscure",
+        "vague"
+      ],
+      "antonymsBn": [
+        "দুর্বোধ্য",
+        "অস্পষ্ট"
+      ],
+      "example": "The teacher gave a lucid explanation of the topic.",
+      "topic": "Academic",
+      "level": 2,
+      "type": "WORD"
+    },
+    {
+      "id": 14,
+      "word": "meticulous",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "অতিসতর্ক; খুঁতখুঁতে",
+      "englishMeaning": "showing great attention to detail",
+      "synonyms": [
+        "careful",
+        "precise",
+        "thorough"
+      ],
+      "synonymsBn": [
+        "সতর্ক",
+        "নির্ভুল",
+        "পুঙ্খানুপুঙ্খ"
+      ],
+      "antonyms": [
+        "careless",
+        "sloppy"
+      ],
+      "antonymsBn": [
+        "অসতর্ক",
+        "অগোছালো"
+      ],
+      "example": "The researcher kept meticulous field records.",
+      "topic": "Academic",
+      "level": 3,
+      "type": "WORD"
+    },
+    {
+      "id": 15,
+      "word": "obsolete",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "অচল; সেকেলে",
+      "englishMeaning": "no longer used or useful",
+      "synonyms": [
+        "outdated",
+        "archaic",
+        "outmoded"
+      ],
+      "synonymsBn": [
+        "সেকেলে",
+        "প্রাচীন",
+        "অচল"
+      ],
+      "antonyms": [
+        "modern",
+        "current"
+      ],
+      "antonymsBn": [
+        "আধুনিক",
+        "বর্তমান"
+      ],
+      "example": "Many old tools became obsolete with new machines.",
+      "topic": "Academic",
+      "level": 2,
+      "type": "WORD"
+    },
+    {
+      "id": 16,
+      "word": "pragmatic",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "বাস্তববাদী",
+      "englishMeaning": "dealing with things in a practical way",
+      "synonyms": [
+        "practical",
+        "realistic",
+        "sensible"
+      ],
+      "synonymsBn": [
+        "বাস্তবসম্মত",
+        "বাস্তবধর্মী",
+        "বিচক্ষণ"
+      ],
+      "antonyms": [
+        "idealistic",
+        "impractical"
+      ],
+      "antonymsBn": [
+        "আদর্শবাদী",
+        "অবাস্তব"
+      ],
+      "example": "A pragmatic farmer chooses crops suited to his soil.",
+      "topic": "Personality",
+      "level": 3,
+      "type": "WORD"
+    },
+    {
+      "id": 17,
+      "word": "reluctant",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "অনিচ্ছুক",
+      "englishMeaning": "unwilling and hesitant",
+      "synonyms": [
+        "unwilling",
+        "hesitant",
+        "loath"
+      ],
+      "synonymsBn": [
+        "অনিচ্ছুক",
+        "দ্বিধাগ্রস্ত",
+        "বিমুখ"
+      ],
+      "antonyms": [
+        "willing",
+        "eager"
+      ],
+      "antonymsBn": [
+        "ইচ্ছুক",
+        "আগ্রহী"
+      ],
+      "example": "He was reluctant to leave his village.",
+      "topic": "Daily Life",
+      "level": 1,
+      "type": "WORD"
+    },
+    {
+      "id": 18,
+      "word": "scrutinize",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "সূক্ষ্মভাবে পরীক্ষা করা",
+      "englishMeaning": "to examine something very carefully",
+      "synonyms": [
+        "examine",
+        "inspect",
+        "analyze"
+      ],
+      "synonymsBn": [
+        "পরীক্ষা করা",
+        "পরিদর্শন করা",
+        "বিশ্লেষণ করা"
+      ],
+      "antonyms": [
+        "ignore",
+        "overlook",
+        "neglect"
+      ],
+      "antonymsBn": [
+        "উপেক্ষা করা",
+        "এড়িয়ে যাওয়া",
+        "অবহেলা করা"
+      ],
+      "example": "Officials scrutinize every document before approval.",
+      "topic": "Academic",
+      "level": 2,
+      "type": "WORD"
+    },
+    {
+      "id": 19,
+      "word": "tenacious",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "নাছোড়; দৃঢ়প্রতিজ্ঞ",
+      "englishMeaning": "holding firmly to a goal; persistent",
+      "synonyms": [
+        "persistent",
+        "determined",
+        "stubborn"
+      ],
+      "synonymsBn": [
+        "অবিচল",
+        "দৃঢ়সংকল্প",
+        "একগুঁয়ে"
+      ],
+      "antonyms": [
+        "yielding",
+        "weak"
+      ],
+      "antonymsBn": [
+        "নমনীয়",
+        "দুর্বল"
+      ],
+      "example": "Her tenacious effort finally won her the scholarship.",
+      "topic": "Personality",
+      "level": 3,
+      "type": "WORD"
+    },
+    {
+      "id": 20,
+      "word": "ubiquitous",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "সর্বব্যাপী",
+      "englishMeaning": "found everywhere",
+      "synonyms": [
+        "omnipresent",
+        "universal",
+        "pervasive"
+      ],
+      "synonymsBn": [
+        "সর্বত্র বিদ্যমান",
+        "সর্বজনীন",
+        "ব্যাপক"
+      ],
+      "antonyms": [
+        "rare",
+        "scarce"
+      ],
+      "antonymsBn": [
+        "বিরল",
+        "দুষ্প্রাপ্য"
+      ],
+      "example": "Mobile phones are ubiquitous in modern life.",
+      "topic": "Academic",
+      "level": 3,
+      "type": "WORD"
+    },
+    {
+      "id": 21,
+      "word": "vague",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "অস্পষ্ট",
+      "englishMeaning": "not clear or definite",
+      "synonyms": [
+        "unclear",
+        "ambiguous",
+        "hazy"
+      ],
+      "synonymsBn": [
+        "অস্পষ্ট",
+        "দ্ব্যর্থক",
+        "ঝাপসা"
+      ],
+      "antonyms": [
+        "clear",
+        "definite"
+      ],
+      "antonymsBn": [
+        "স্পষ্ট",
+        "সুনির্দিষ্ট"
+      ],
+      "example": "The instructions were too vague to follow.",
+      "topic": "Daily Life",
+      "level": 1,
+      "type": "WORD"
+    },
+    {
+      "id": 22,
+      "word": "wary",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "সতর্ক",
+      "englishMeaning": "cautious about possible danger",
+      "synonyms": [
+        "cautious",
+        "careful",
+        "alert"
+      ],
+      "synonymsBn": [
+        "সতর্ক",
+        "যত্নবান",
+        "সজাগ"
+      ],
+      "antonyms": [
+        "careless",
+        "reckless"
+      ],
+      "antonymsBn": [
+        "অসতর্ক",
+        "বেপরোয়া"
+      ],
+      "example": "Farmers are wary of sudden weather changes.",
+      "topic": "Daily Life",
+      "level": 2,
+      "type": "WORD"
+    },
+    {
+      "id": 23,
+      "word": "zealous",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "উদ্যমী; অত্যুৎসাহী",
+      "englishMeaning": "full of energy and enthusiasm for a cause",
+      "synonyms": [
+        "fervent",
+        "passionate",
+        "ardent"
+      ],
+      "synonymsBn": [
+        "আবেগময়",
+        "অনুরাগী",
+        "তীব্র অনুরাগী"
+      ],
+      "antonyms": [
+        "apathetic",
+        "indifferent"
+      ],
+      "antonymsBn": [
+        "নিস্পৃহ",
+        "উদাসীন"
+      ],
+      "example": "A zealous volunteer led the tree-planting campaign.",
+      "topic": "Personality",
+      "level": 3,
+      "type": "WORD"
+    },
+    {
+      "id": 24,
+      "word": "ephemeral",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "ক্ষণস্থায়ী",
+      "englishMeaning": "lasting for a very short time",
+      "synonyms": [
+        "transient",
+        "fleeting",
+        "short-lived"
+      ],
+      "synonymsBn": [
+        "ক্ষণস্থায়ী",
+        "ক্ষণিক",
+        "অল্পদিনের"
+      ],
+      "antonyms": [
+        "permanent",
+        "eternal"
+      ],
+      "antonymsBn": [
+        "স্থায়ী",
+        "চিরন্তন"
+      ],
+      "example": "The beauty of the morning dew is ephemeral.",
+      "topic": "Academic",
+      "level": 3,
+      "type": "WORD"
+    },
+    {
+      "id": 25,
+      "word": "ambiguous",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "দ্ব্যর্থক",
+      "englishMeaning": "having more than one possible meaning",
+      "synonyms": [
+        "unclear",
+        "equivocal",
+        "vague"
+      ],
+      "synonymsBn": [
+        "অস্পষ্ট",
+        "দ্ব্যর্থবোধক",
+        "অনির্দিষ্ট"
+      ],
+      "antonyms": [
+        "clear",
+        "explicit"
+      ],
+      "antonymsBn": [
+        "স্পষ্ট",
+        "সুস্পষ্ট"
+      ],
+      "example": "The ambiguous question confused many examinees.",
+      "topic": "Academic",
+      "level": 2,
+      "type": "WORD"
+    },
+    {
+      "id": 26,
+      "word": "verbose",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "বাগাড়ম্বরপূর্ণ",
+      "englishMeaning": "using more words than necessary",
+      "synonyms": [
+        "wordy",
+        "long-winded",
+        "garrulous"
+      ],
+      "synonymsBn": [
+        "বাক্যবহুল",
+        "অতিদীর্ঘ",
+        "বাচাল"
+      ],
+      "antonyms": [
+        "concise",
+        "terse"
+      ],
+      "antonymsBn": [
+        "সংক্ষিপ্ত",
+        "মিতভাষী"
+      ],
+      "example": "His verbose report could have been half as long.",
+      "topic": "Academic",
+      "level": 3,
+      "type": "WORD"
+    },
+    {
+      "id": 27,
+      "word": "mitigate",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "প্রশমিত করা",
+      "englishMeaning": "to make something less severe",
+      "synonyms": [
+        "alleviate",
+        "lessen",
+        "ease"
+      ],
+      "synonymsBn": [
+        "লাঘব করা",
+        "কমানো",
+        "উপশম করা"
+      ],
+      "antonyms": [
+        "aggravate",
+        "intensify"
+      ],
+      "antonymsBn": [
+        "জটিল করা",
+        "তীব্র করা"
+      ],
+      "example": "Embankments help mitigate the damage of floods.",
+      "topic": "Academic",
+      "level": 3,
+      "type": "WORD"
+    },
+    {
+      "id": 28,
+      "word": "resilient",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "স্থিতিস্থাপক; দ্রুত সামলে ওঠে এমন",
+      "englishMeaning": "able to recover quickly from difficulty",
+      "synonyms": [
+        "tough",
+        "adaptable",
+        "flexible"
+      ],
+      "synonymsBn": [
+        "শক্তপোক্ত",
+        "খাপ খাওয়াতে সক্ষম",
+        "নমনীয়"
+      ],
+      "antonyms": [
+        "fragile",
+        "brittle"
+      ],
+      "antonymsBn": [
+        "ভঙ্গুর",
+        "সহজে ভাঙে এমন"
+      ],
+      "example": "Resilient communities rebuild quickly after cyclones.",
+      "topic": "Personality",
+      "level": 3,
+      "type": "WORD"
+    },
+    {
+      "id": 29,
+      "word": "inevitable",
+      "partOfSpeech": "adjective",
+      "banglaMeaning": "অনিবার্য",
+      "englishMeaning": "certain to happen; unavoidable",
+      "synonyms": [
+        "unavoidable",
+        "certain",
+        "inescapable"
+      ],
+      "synonymsBn": [
+        "অপরিহার্য",
+        "নিশ্চিত",
+        "পালানোর উপায় নেই এমন"
+      ],
+      "antonyms": [
+        "avoidable",
+        "uncertain"
+      ],
+      "antonymsBn": [
+        "এড়ানো সম্ভব",
+        "অনিশ্চিত"
+      ],
+      "example": "Change is inevitable in every society.",
+      "topic": "Academic",
+      "level": 2,
+      "type": "WORD"
+    },
+    {
+      "id": 30,
+      "word": "contemplate",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "গভীরভাবে চিন্তা করা",
+      "englishMeaning": "to think about something deeply",
+      "synonyms": [
+        "ponder",
+        "consider",
+        "reflect"
+      ],
+      "synonymsBn": [
+        "ভেবে দেখা",
+        "বিবেচনা করা",
+        "চিন্তা করা"
+      ],
+      "antonyms": [
+        "ignore",
+        "disregard"
+      ],
+      "antonymsBn": [
+        "উপেক্ষা করা",
+        "অগ্রাহ্য করা"
+      ],
+      "example": "She sat quietly to contemplate her future plans.",
+      "topic": "Daily Life",
+      "level": 2,
+      "type": "WORD"
+    },
+    {
+      "id": 101,
+      "word": "A blessing in disguise",
+      "partOfSpeech": "idiom",
+      "banglaMeaning": "অকল্যাণের মাঝে কল্যাণ",
+      "englishMeaning": "something that seems bad at first but turns out to be good",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "Losing that job was a blessing in disguise; it pushed her to start her own business.",
+      "topic": "Idioms",
+      "level": 2,
+      "type": "IDIOM",
+      "questions": [
+        {
+          "type": "IDIOM",
+          "text": "Choose the correct meaning of the idiom ‘{word}’."
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "word": "Break the ice",
+      "partOfSpeech": "idiom",
+      "banglaMeaning": "আড়ষ্টতা কাটিয়ে আলাপ শুরু করা",
+      "englishMeaning": "to start a conversation and make people feel at ease",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "A friendly joke helped him break the ice at the meeting.",
+      "topic": "Idioms",
+      "level": 1,
+      "type": "IDIOM"
+    },
+    {
+      "id": 103,
+      "word": "Once in a blue moon",
+      "partOfSpeech": "idiom",
+      "banglaMeaning": "কালেভদ্রে",
+      "englishMeaning": "very rarely",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "He visits his village once in a blue moon.",
+      "topic": "Idioms",
+      "level": 1,
+      "type": "IDIOM"
+    },
+    {
+      "id": 104,
+      "word": "A piece of cake",
+      "partOfSpeech": "idiom",
+      "banglaMeaning": "অতি সহজ কাজ",
+      "englishMeaning": "something very easy to do",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "After weeks of practice, the exam was a piece of cake.",
+      "topic": "Idioms",
+      "level": 1,
+      "type": "IDIOM"
+    },
+    {
+      "id": 105,
+      "word": "Burn the midnight oil",
+      "partOfSpeech": "idiom",
+      "banglaMeaning": "গভীর রাত পর্যন্ত পড়া বা কাজ করা",
+      "englishMeaning": "to work or study late into the night",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "She burned the midnight oil before the final exam.",
+      "topic": "Idioms",
+      "level": 2,
+      "type": "IDIOM"
+    },
+    {
+      "id": 106,
+      "word": "Hit the nail on the head",
+      "partOfSpeech": "idiom",
+      "banglaMeaning": "ঠিক কথাটি বলা",
+      "englishMeaning": "to describe exactly what is causing a situation",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "You hit the nail on the head when you said we lacked planning.",
+      "topic": "Idioms",
+      "level": 2,
+      "type": "IDIOM"
+    },
+    {
+      "id": 201,
+      "word": "Omnivorous",
+      "partOfSpeech": "noun",
+      "banglaMeaning": "সর্বভুক",
+      "englishMeaning": "one who eats both plants and animals",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "Bears are omnivorous animals.",
+      "topic": "One Word Substitution",
+      "level": 2,
+      "type": "ONE_WORD_SUB"
+    },
+    {
+      "id": 202,
+      "word": "Amateur",
+      "partOfSpeech": "noun",
+      "banglaMeaning": "শৌখিন; অপেশাদার",
+      "englishMeaning": "one who does something for pleasure, not for pay",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "He is an amateur photographer who loves rural scenes.",
+      "topic": "One Word Substitution",
+      "level": 1,
+      "type": "ONE_WORD_SUB"
+    },
+    {
+      "id": 203,
+      "word": "Orphan",
+      "partOfSpeech": "noun",
+      "banglaMeaning": "এতিম",
+      "englishMeaning": "a child who has lost both parents",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The orphan was raised by his uncle.",
+      "topic": "One Word Substitution",
+      "level": 1,
+      "type": "ONE_WORD_SUB"
+    },
+    {
+      "id": 204,
+      "word": "Bibliophile",
+      "partOfSpeech": "noun",
+      "banglaMeaning": "গ্রন্থপ্রেমী",
+      "englishMeaning": "a lover of books",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "A true bibliophile can spend hours in a library.",
+      "topic": "One Word Substitution",
+      "level": 3,
+      "type": "ONE_WORD_SUB"
+    },
+    {
+      "id": 205,
+      "word": "Misanthrope",
+      "partOfSpeech": "noun",
+      "banglaMeaning": "মানবদ্বেষী",
+      "englishMeaning": "one who hates mankind",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The misanthrope avoided every social gathering.",
+      "topic": "One Word Substitution",
+      "level": 3,
+      "type": "ONE_WORD_SUB"
+    },
+    {
+      "id": 206,
+      "word": "Philanthropist",
+      "partOfSpeech": "noun",
+      "banglaMeaning": "সমাজহিতৈষী; দানশীল",
+      "englishMeaning": "one who loves mankind and helps others with money",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The philanthropist built a school for poor children.",
+      "topic": "One Word Substitution",
+      "level": 2,
+      "type": "ONE_WORD_SUB"
+    },
+    {
+      "id": 301,
+      "word": "give up",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "ছেড়ে দেওয়া; হাল ছাড়া",
+      "englishMeaning": "to stop trying or to quit doing something",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "Never give up on your dreams.",
+      "topic": "Group Verbs",
+      "level": 1,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 302,
+      "word": "look after",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "দেখাশোনা করা",
+      "englishMeaning": "to take care of someone or something",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "She looks after her younger brother while their mother works.",
+      "topic": "Group Verbs",
+      "level": 1,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 303,
+      "word": "put off",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "স্থগিত করা; পিছিয়ে দেওয়া",
+      "englishMeaning": "to postpone something until a later time",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "Do not put off today's work until tomorrow.",
+      "topic": "Group Verbs",
+      "level": 1,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 304,
+      "word": "carry out",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "সম্পন্ন করা; বাস্তবায়ন করা",
+      "englishMeaning": "to perform or complete a task or plan",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The team carried out the survey in ten villages.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 305,
+      "word": "call off",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "বাতিল করা",
+      "englishMeaning": "to cancel an event or plan",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The match was called off because of heavy rain.",
+      "topic": "Group Verbs",
+      "level": 1,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 306,
+      "word": "break down",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "অচল হয়ে যাওয়া; ভেঙে পড়া",
+      "englishMeaning": "to stop working, as a machine does",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "Our bus broke down halfway to Sylhet.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 307,
+      "word": "come across",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "হঠাৎ খুঁজে পাওয়া",
+      "englishMeaning": "to find or meet something by chance",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "I came across an old photograph in the drawer.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 308,
+      "word": "turn down",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "প্রত্যাখ্যান করা",
+      "englishMeaning": "to refuse an offer or request",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "He turned down the job offer because the salary was low.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 309,
+      "word": "look up",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "তথ্য খুঁজে দেখা",
+      "englishMeaning": "to search for information in a dictionary, a book or online",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "You should look up the word in a dictionary.",
+      "topic": "Group Verbs",
+      "level": 1,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 310,
+      "word": "look for",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "খোঁজা; অনুসন্ধান করা",
+      "englishMeaning": "to try to find someone or something",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "I need to look for my lost keys.",
+      "topic": "Group Verbs",
+      "level": 1,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 311,
+      "word": "look into",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "তদন্ত করা; খতিয়ে দেখা",
+      "englishMeaning": "to investigate or examine a matter carefully",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The committee will look into the complaint.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 312,
+      "word": "look up to",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "শ্রদ্ধা করা; সম্মান করা",
+      "englishMeaning": "to admire and respect someone",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "Children often look up to their teachers.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB",
+      "appendix": 1
+    },
+    {
+      "id": 313,
+      "word": "look down on",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "তুচ্ছ মনে করা; হেয় করা",
+      "englishMeaning": "to think that someone is less important than you",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "It is wrong to look down on poor people.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB",
+      "appendix": 1
+    },
+    {
+      "id": 314,
+      "word": "give in",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "হার মানা; নতি স্বীকার করা",
+      "englishMeaning": "to stop resisting and agree to something",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "A good leader does not give in to pressure.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 315,
+      "word": "give away",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "বিলিয়ে দেওয়া; ফাঁস করে দেওয়া",
+      "englishMeaning": "to give something for free, or to reveal a secret",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "She decided to give away her old clothes.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 316,
+      "word": "put on",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "পরিধান করা",
+      "englishMeaning": "to dress yourself in a piece of clothing",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "Put on a jacket; it is cold outside.",
+      "topic": "Group Verbs",
+      "level": 1,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 317,
+      "word": "put up with",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "সহ্য করা",
+      "englishMeaning": "to tolerate something unpleasant",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "We cannot put up with this noise any longer.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB",
+      "appendix": 1
+    },
+    {
+      "id": 318,
+      "word": "put out",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "নেভানো",
+      "englishMeaning": "to stop a fire or a light from burning",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "Firefighters worked hard to put out the fire.",
+      "topic": "Group Verbs",
+      "level": 1,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 319,
+      "word": "carry on",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "চালিয়ে যাওয়া",
+      "englishMeaning": "to continue doing something",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "Please carry on with your work.",
+      "topic": "Group Verbs",
+      "level": 1,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 320,
+      "word": "call on",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "সৌজন্য সাক্ষাৎ করা",
+      "englishMeaning": "to visit someone for a short time",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "I will call on my uncle this evening.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 321,
+      "word": "call for",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "দাবি করা; প্রয়োজন হওয়া",
+      "englishMeaning": "to demand or to require something",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The crisis may call for immediate action.",
+      "topic": "Group Verbs",
+      "level": 3,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 322,
+      "word": "break out",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "শুরু হওয়া; ছড়িয়ে পড়া",
+      "englishMeaning": "to begin suddenly, as a war, a fire or a disease does",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "A fire can break out without any warning.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 323,
+      "word": "break up",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "ভেঙে যাওয়া; সম্পর্ক ছিন্ন করা",
+      "englishMeaning": "to separate into parts or to end a relationship",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The crowd began to break up after the speech.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 324,
+      "word": "come up with",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "উদ্ভাবন করা; উপায় বের করা",
+      "englishMeaning": "to think of an idea or a plan",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "We must come up with a better solution.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB",
+      "appendix": 1
+    },
+    {
+      "id": 325,
+      "word": "turn up",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "হাজির হওয়া",
+      "englishMeaning": "to arrive or to appear",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "He did not turn up at the meeting.",
+      "topic": "Group Verbs",
+      "level": 1,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 326,
+      "word": "turn out",
+      "partOfSpeech": "verb",
+      "banglaMeaning": "পরিণত হওয়া; শেষ পর্যন্ত প্রমাণিত হওয়া",
+      "englishMeaning": "to prove to be in the end",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The plan can turn out to be a great success.",
+      "topic": "Group Verbs",
+      "level": 2,
+      "type": "GROUP_VERB"
+    },
+    {
+      "id": 401,
+      "word": "abide by",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "মেনে চলা",
+      "englishMeaning": "to follow a rule, law or decision",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "Every citizen must abide by the law.",
+      "topic": "Prepositions",
+      "level": 2,
+      "type": "PREPOSITION",
+      "questions": [
+        {
+          "type": "PREPOSITION",
+          "text": "Fill in the blank with the appropriate preposition.\n{blank}",
+          "options": [
+            "by",
+            "of",
+            "on",
+            "at"
+          ],
+          "answer": "by"
+        }
+      ]
+    },
+    {
+      "id": 402,
+      "word": "afraid of",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "ভয় পাওয়া",
+      "englishMeaning": "feeling fear about someone or something",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The child is afraid of the dark.",
+      "topic": "Prepositions",
+      "level": 1,
+      "type": "PREPOSITION"
+    },
+    {
+      "id": 403,
+      "word": "married to",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "বিবাহিত (কারও সঙ্গে)",
+      "englishMeaning": "having a husband or wife",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "She is married to a doctor.",
+      "topic": "Prepositions",
+      "level": 1,
+      "type": "PREPOSITION"
+    },
+    {
+      "id": 404,
+      "word": "interested in",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "আগ্রহী",
+      "englishMeaning": "wanting to know more about something",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "My brother is interested in astronomy.",
+      "topic": "Prepositions",
+      "level": 1,
+      "type": "PREPOSITION"
+    },
+    {
+      "id": 405,
+      "word": "depend on",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "নির্ভর করা",
+      "englishMeaning": "to rely on someone or something",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "You cannot depend on luck alone to pass the exam.",
+      "topic": "Prepositions",
+      "level": 1,
+      "type": "PREPOSITION"
+    },
+    {
+      "id": 406,
+      "word": "fond of",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "অনুরাগী; পছন্দ করে এমন",
+      "englishMeaning": "liking someone or something very much",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "She is fond of reading poetry.",
+      "topic": "Prepositions",
+      "level": 1,
+      "type": "PREPOSITION"
+    },
+    {
+      "id": 407,
+      "word": "capable of",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "সক্ষম",
+      "englishMeaning": "having the ability to do something",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "He is capable of finishing the work alone.",
+      "topic": "Prepositions",
+      "level": 2,
+      "type": "PREPOSITION"
+    },
+    {
+      "id": 408,
+      "word": "proud of",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "গর্বিত",
+      "englishMeaning": "feeling pleased about an achievement",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "Parents are proud of their children's success.",
+      "topic": "Prepositions",
+      "level": 1,
+      "type": "PREPOSITION"
+    },
+    {
+      "id": 409,
+      "word": "in spite of",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "সত্ত্বেও",
+      "englishMeaning": "although something exists or happens; not stopped by it",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "They played the match in spite of the heavy rain.",
+      "topic": "Prepositions",
+      "level": 1,
+      "type": "PREPOSITION",
+      "appendix": 1
+    },
+    {
+      "id": 410,
+      "word": "on account of",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "কারণে; জন্য",
+      "englishMeaning": "because of something",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The match was delayed on account of the storm.",
+      "topic": "Prepositions",
+      "level": 2,
+      "type": "PREPOSITION",
+      "appendix": 1
+    },
+    {
+      "id": 411,
+      "word": "because of",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "কারণে; জন্য",
+      "englishMeaning": "as a result of something",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The flight was cancelled because of dense fog.",
+      "topic": "Prepositions",
+      "level": 1,
+      "type": "PREPOSITION",
+      "appendix": 1
+    },
+    {
+      "id": 412,
+      "word": "instead of",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "পরিবর্তে; বদলে",
+      "englishMeaning": "in the place of someone or something else",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "She drinks tea instead of coffee in the morning.",
+      "topic": "Prepositions",
+      "level": 1,
+      "type": "PREPOSITION",
+      "appendix": 1
+    },
+    {
+      "id": 413,
+      "word": "in front of",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "সামনে",
+      "englishMeaning": "at the front of; before the face of",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The school stands in front of a large playground.",
+      "topic": "Prepositions",
+      "level": 1,
+      "type": "PREPOSITION",
+      "appendix": 1
+    },
+    {
+      "id": 414,
+      "word": "according to",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "অনুসারে; মতে",
+      "englishMeaning": "as stated or reported by someone",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The match will start at nine, according to the schedule.",
+      "topic": "Prepositions",
+      "level": 1,
+      "type": "PREPOSITION",
+      "appendix": 1
+    },
+    {
+      "id": 415,
+      "word": "owing to",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "কারণে; জন্য",
+      "englishMeaning": "because of something",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The meeting was postponed owing to the chairman's illness.",
+      "topic": "Prepositions",
+      "level": 2,
+      "type": "PREPOSITION",
+      "appendix": 1
+    },
+    {
+      "id": 416,
+      "word": "in place of",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "স্থলে; পরিবর্তে",
+      "englishMeaning": "as a replacement for someone or something",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "A substitute teacher came in place of Mr. Rahman.",
+      "topic": "Prepositions",
+      "level": 2,
+      "type": "PREPOSITION",
+      "appendix": 1
+    },
+    {
+      "id": 417,
+      "word": "with regard to",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "সম্পর্কে; বিষয়ে",
+      "englishMeaning": "concerning; about",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "I am writing with regard to your application.",
+      "topic": "Prepositions",
+      "level": 3,
+      "type": "PREPOSITION",
+      "appendix": 1
+    },
+    {
+      "id": 418,
+      "word": "by means of",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "সাহায্যে; মাধ্যমে",
+      "englishMeaning": "using something as the way to do a thing",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "Farmers water their fields by means of electric pumps.",
+      "topic": "Prepositions",
+      "level": 2,
+      "type": "PREPOSITION",
+      "appendix": 1
+    },
+    {
+      "id": 419,
+      "word": "on behalf of",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "পক্ষ থেকে; পক্ষে",
+      "englishMeaning": "as the representative of someone",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "I am speaking on behalf of all the students.",
+      "topic": "Prepositions",
+      "level": 2,
+      "type": "PREPOSITION",
+      "appendix": 1
+    },
+    {
+      "id": 420,
+      "word": "in addition to",
+      "partOfSpeech": "preposition",
+      "banglaMeaning": "ছাড়াও; অতিরিক্ত হিসেবে",
+      "englishMeaning": "as well as; besides",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "She speaks English in addition to Bangla and Hindi.",
+      "topic": "Prepositions",
+      "level": 2,
+      "type": "PREPOSITION",
+      "appendix": 1
+    },
+    {
+      "id": 501,
+      "word": "A stitch in time saves nine",
+      "partOfSpeech": "proverb",
+      "banglaMeaning": "সময়ের এক ফোঁড়, অসময়ের দশ ফোঁড়",
+      "englishMeaning": "fixing a small problem early prevents bigger trouble later",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "He repaired the leaking roof before the monsoon; a stitch in time saves nine.",
+      "topic": "Proverbs",
+      "level": 2,
+      "type": "PROVERB"
+    },
+    {
+      "id": 502,
+      "word": "Honesty is the best policy",
+      "partOfSpeech": "proverb",
+      "banglaMeaning": "সততাই সর্বোত্তম পন্থা",
+      "englishMeaning": "being truthful is always the wisest choice",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "She returned the lost wallet because honesty is the best policy.",
+      "topic": "Proverbs",
+      "level": 1,
+      "type": "PROVERB"
+    },
+    {
+      "id": 503,
+      "word": "Practice makes a man perfect",
+      "partOfSpeech": "proverb",
+      "banglaMeaning": "অনুশীলনেই দক্ষতা আসে",
+      "englishMeaning": "repeated practice leads to skill and mastery",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "He solves problems quickly now; practice makes a man perfect.",
+      "topic": "Proverbs",
+      "level": 1,
+      "type": "PROVERB"
+    },
+    {
+      "id": 504,
+      "word": "Where there is a will, there is a way",
+      "partOfSpeech": "proverb",
+      "banglaMeaning": "ইচ্ছা থাকলে উপায় হয়",
+      "englishMeaning": "if you are determined, you will find a way to succeed",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "She studied at night and passed; where there is a will, there is a way.",
+      "topic": "Proverbs",
+      "level": 2,
+      "type": "PROVERB"
+    },
+    {
+      "id": 505,
+      "word": "Slow and steady wins the race",
+      "partOfSpeech": "proverb",
+      "banglaMeaning": "ধীরে ও স্থিরে জয় আসে",
+      "englishMeaning": "patient and consistent effort brings success",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "Rina finished the course first because slow and steady wins the race.",
+      "topic": "Proverbs",
+      "level": 2,
+      "type": "PROVERB"
+    },
+    {
+      "id": 506,
+      "word": "Time and tide wait for none",
+      "partOfSpeech": "proverb",
+      "banglaMeaning": "সময় ও স্রোত কারও জন্য অপেক্ষা করে না",
+      "englishMeaning": "time does not stop for anyone, so it should not be wasted",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "Start your preparation today; time and tide wait for none.",
+      "topic": "Proverbs",
+      "level": 2,
+      "type": "PROVERB"
+    },
+    {
+      "id": 507,
+      "word": "Union is strength",
+      "partOfSpeech": "proverb",
+      "banglaMeaning": "ঐক্যই শক্তি",
+      "englishMeaning": "people achieve more when they act together",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The villagers built the dam together; union is strength.",
+      "topic": "Proverbs",
+      "level": 1,
+      "type": "PROVERB"
+    },
+    {
+      "id": 508,
+      "word": "All that glitters is not gold",
+      "partOfSpeech": "proverb",
+      "banglaMeaning": "চকচক করলেই সোনা হয় না",
+      "englishMeaning": "things that look attractive are not always valuable",
+      "synonyms": [],
+      "antonyms": [],
+      "example": "The cheap watch looked expensive, but all that glitters is not gold.",
+      "topic": "Proverbs",
+      "level": 2,
+      "type": "PROVERB"
+    }
+  ]
+}

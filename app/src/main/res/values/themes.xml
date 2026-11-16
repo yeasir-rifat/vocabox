@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Cream window background so cold start matches the app instead of flashing white. -->
+    <style name="Theme.Vocabulary" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:colorPrimary">@color/brand_maroon</item>
+        <item name="android:colorAccent">@color/brand_maroon</item>
+    </style>
+</resources>
