@@ -23,7 +23,9 @@ data class DeckSpec(
     val size: Int,
     val type: WordType? = null,
     val topic: String? = null,
-    val level: Int? = null
+    val level: Int? = null,
+    /** When set, the deck is drawn from exactly these words (used by the Saved settings panel). */
+    val wordIds: Set<Long>? = null
 )
 
 @Singleton
@@ -38,6 +40,10 @@ class StudyRepository @Inject constructor(
 
     /** Builds a shuffled deck. SMART = words due for review first, then new words. */
     suspend fun buildDeck(spec: DeckSpec, now: Long = System.currentTimeMillis()): List<WordEntity> {
+        if (spec.wordIds != null) {
+            val custom = spec.wordIds.toList().chunked(500).flatMap { wordDao.getByIds(it) }
+            return custom.shuffled().take(spec.size)
+        }
         val words = when (spec.source) {
             DeckSource.SMART -> {
                 val due = wordDao.getDueWords(now, spec.topic, spec.level, spec.type, spec.size)

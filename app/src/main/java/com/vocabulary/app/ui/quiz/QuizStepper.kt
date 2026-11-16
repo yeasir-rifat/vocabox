@@ -47,19 +47,23 @@ internal fun StepperBox(
     min: Int,
     max: Int,
     onValueChange: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    compact: Boolean = false
 ) {
+    val button = if (compact) 36.dp else Spacing.Target
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surfaceContainer,
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = Spacing.Standard, vertical = Spacing.Compact),
+            modifier = Modifier
+                .then(if (compact) Modifier.fillMaxWidth() else Modifier)
+                .padding(horizontal = if (compact) Spacing.Compact else Spacing.Standard, vertical = Spacing.Compact),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.Micro)
+            horizontalArrangement = if (compact) Arrangement.SpaceBetween else Arrangement.spacedBy(Spacing.Micro)
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            if (!compact) Column(modifier = Modifier.weight(1f)) {
                 Text(label, style = MaterialTheme.typography.bodyLarge)
                 if (caption != null) {
                     Text(
@@ -72,13 +76,13 @@ internal fun StepperBox(
             IconButton(
                 onClick = { onValueChange((value - 1).coerceIn(min, max)) },
                 enabled = value > min,
-                modifier = Modifier.size(Spacing.Target)
+                modifier = Modifier.size(button)
             ) { Icon(AppIcons.Remove, contentDescription = "Decrease $label") }
-            NumberField(value, min, max, onValueChange, description = label)
+            NumberField(value, min, max, onValueChange, description = label, compact = compact)
             IconButton(
                 onClick = { onValueChange((value + 1).coerceIn(min, max)) },
                 enabled = value < max,
-                modifier = Modifier.size(Spacing.Target)
+                modifier = Modifier.size(button)
             ) { Icon(AppIcons.Add, contentDescription = "Increase $label") }
         }
     }
@@ -91,7 +95,8 @@ private fun NumberField(
     min: Int,
     max: Int,
     onValueChange: (Int) -> Unit,
-    description: String
+    description: String,
+    compact: Boolean = false
 ) {
     var text by remember { mutableStateOf(value.toString()) }
     var focused by remember { mutableStateOf(false) }
@@ -116,7 +121,7 @@ private fun NumberField(
             digits.toIntOrNull()?.let { if (it >= min) onValueChange(it.coerceAtMost(max)) }
         },
         modifier = Modifier
-            .size(width = 72.dp, height = Spacing.Target)
+            .size(width = if (compact) 48.dp else 72.dp, height = if (compact) 40.dp else Spacing.Target)
             .border(2.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(10.dp))
             .onFocusChanged {
                 if (focused && !it.isFocused) commit()

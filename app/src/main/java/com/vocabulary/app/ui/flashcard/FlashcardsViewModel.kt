@@ -9,6 +9,7 @@ import com.vocabulary.app.data.model.WordType
 import com.vocabulary.app.data.repository.DeckSpec
 import com.vocabulary.app.data.repository.StudyRepository
 import com.vocabulary.app.data.repository.WordRepository
+import com.vocabulary.app.domain.CustomDeck
 import com.vocabulary.app.domain.DayTicker
 import com.vocabulary.app.tts.TtsManager
 import com.vocabulary.app.tts.TtsStatus
@@ -88,8 +89,12 @@ class FlashcardsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val studyRepository: StudyRepository,
     private val wordRepository: WordRepository,
+    private val customDeck: CustomDeck,
     private val tts: TtsManager
 ) : ViewModel() {
+
+    /** Words chosen in the Saved settings panel, or null for a normal deck. */
+    private val customIds: Set<Long>? = customDeck.take()
 
     private val _config = MutableStateFlow(
         DeckConfig(
@@ -122,7 +127,9 @@ class FlashcardsViewModel @Inject constructor(
                 studyRepository.observeBookmarkCount(),
                 studyRepository.observeMistakeCount()
             ) { due, fresh, bookmarked, mistakes ->
-                DeckCounts(due, fresh, bookmarked, mistakes)
+                val custom = customIds?.size
+                if (custom != null) DeckCounts(due, fresh, custom, custom)
+                else DeckCounts(due, fresh, bookmarked, mistakes)
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DeckCounts())
@@ -151,7 +158,7 @@ class FlashcardsViewModel @Inject constructor(
         viewModelScope.launch {
             val cfg = _config.value
             val deck = studyRepository.buildDeck(
-                DeckSpec(cfg.source, cfg.size, cfg.type, cfg.topic, cfg.level)
+                DeckSpec(cfg.source, cfg.size, cfg.type, cfg.topic, cfg.level, customIds)
             )
             if (deck.isEmpty()) {
                 _session.value = SessionState.Empty

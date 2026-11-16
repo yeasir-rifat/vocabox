@@ -6,6 +6,7 @@ import com.vocabulary.app.data.local.entity.MistakeWithWord
 import com.vocabulary.app.data.local.entity.WordEntity
 import com.vocabulary.app.data.model.QuizSource
 import com.vocabulary.app.data.repository.WordRepository
+import com.vocabulary.app.domain.CustomDeck
 import com.vocabulary.app.domain.QuizGroupRequest
 import com.vocabulary.app.domain.QuizLauncher
 import com.vocabulary.app.tts.TtsManager
@@ -21,6 +22,7 @@ import javax.inject.Inject
 class SavedViewModel @Inject constructor(
     private val repository: WordRepository,
     private val launcher: QuizLauncher,
+    private val customDeck: CustomDeck,
     private val tts: TtsManager
 ) : ViewModel() {
 
@@ -69,6 +71,14 @@ class SavedViewModel @Inject constructor(
     fun quizMistakes() {
         launcher.request(QuizGroupRequest("Mistakes", emptySet(), QuizSource.MISTAKES))
     }
+
+    /** Quiz on the words picked in the settings panel. */
+    fun quizWords(label: String, ids: Set<Long>) {
+        launcher.request(QuizGroupRequest(label, ids))
+    }
+
+    /** Leaves the picked words for the Flashcards screen, or clears them with null. */
+    fun prepareFlashcards(ids: Set<Long>?) = customDeck.set(ids)
 
     override fun onCleared() {
         tts.stop()

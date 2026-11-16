@@ -63,6 +63,18 @@ fun QuizMode.title(): String = when (this) {
     QuizMode.PROVERB -> "Proverbs"
 }
 
+/** Short names for tight spots such as the quiz mode grid. */
+fun QuizMode.shortTitle(): String = when (this) {
+    QuizMode.MEANING -> "Meaning"
+    QuizMode.SYNONYM -> "Synonyms"
+    QuizMode.ANTONYM -> "Antonyms"
+    QuizMode.IDIOM -> "Idioms & Phrases"
+    QuizMode.ONE_WORD_SUB -> "One-word Sub"
+    QuizMode.GROUP_VERB -> "Group Verbs"
+    QuizMode.PREPOSITION -> "Appr. Prep."
+    QuizMode.PROVERB -> "Proverbs"
+}
+
 fun QuizMode.description(): String = when (this) {
     QuizMode.MEANING -> "Pick the Bangla meaning of a word"
     QuizMode.SYNONYM -> "Pick the word with the same meaning"

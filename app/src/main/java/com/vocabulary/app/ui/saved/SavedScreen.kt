@@ -1,6 +1,16 @@
 package com.vocabulary.app.ui.saved
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
+import com.vocabulary.app.ui.components.label
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -72,8 +82,26 @@ fun SavedScreen(
     var tabIndex by rememberSaveable { mutableStateOf(0) }
     val tab = SavedTab.entries[tabIndex]
 
-    val favouriteEntries = remember(bookmarks) { bookmarks?.map { SavedEntry(it) } }
-    val mistakeEntries = remember(mistakes) { mistakes?.map { SavedEntry(it.word, it.count) } }
+    val allFavouriteEntries = remember(bookmarks) { bookmarks?.map { SavedEntry(it) } }
+    val allMistakeEntries = remember(mistakes) { mistakes?.map { SavedEntry(it.word, it.count) } }
+
+    // Settings panel: filters shared by both tabs, applied to the list that is showing.
+    var settingsOpen by rememberSaveable { mutableStateOf(false) }
+    var typeName by rememberSaveable { mutableStateOf<String?>(null) }
+    var lettersText by rememberSaveable { mutableStateOf("") }
+    var minMissed by rememberSaveable { mutableStateOf(0) }
+    val filter = SavedFilter(
+        type = typeName?.let { n -> WordType.entries.firstOrNull { it.name == n } },
+        letters = lettersText.toSet(),
+        minMissed = minMissed
+    )
+    val missedById = remember(mistakes) { mistakes.orEmpty().associate { it.word.id to it.count } }
+    val favouriteEntries = remember(allFavouriteEntries, filter, missedById) {
+        allFavouriteEntries?.filter { filter.accepts(it.word, missedById[it.word.id] ?: 0) }
+    }
+    val mistakeEntries = remember(allMistakeEntries, filter, missedById) {
+        allMistakeEntries?.filter { filter.accepts(it.word, missedById[it.word.id] ?: 0) }
+    }
 
     // The word sheet works on a copy of the list taken when it opens, so unstarring a word inside
     // it does not pull the next word under your thumb.
@@ -100,23 +128,33 @@ fun SavedScreen(
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Text(
-                text = "Saved",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(
-                    start = Spacing.Content,
-                    end = Spacing.Content,
-                    top = Spacing.Content,
-                    bottom = Spacing.Compact
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = Spacing.Content, end = Spacing.Compact, top = Spacing.Content, bottom = Spacing.Compact),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Saved",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.weight(1f)
                 )
-            )
+                IconButton(onClick = { settingsOpen = true }) {
+                    Icon(
+                        imageVector = AppIcons.Settings,
+                        contentDescription = "Practice settings",
+                        tint = if (filter.isActive) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
             SegmentedControl(
                 options = SavedTab.entries,
                 selected = tab,
                 label = {
                     when (it) {
-                        SavedTab.FAVOURITES -> "Favourites (${favouriteEntries?.size ?: 0})"
-                        SavedTab.MISTAKES -> "Mistakes (${mistakeEntries?.size ?: 0})"
+                        SavedTab.FAVOURITES -> "Favourites (${allFavouriteEntries?.size ?: 0})"
+                        SavedTab.MISTAKES -> "Mistakes (${allMistakeEntries?.size ?: 0})"
                     }
                 },
                 onSelect = { tabIndex = it.ordinal },
@@ -145,11 +183,7 @@ fun SavedScreen(
                         sheetIds = words.map { it.id }.toLongArray()
                         sheetIndex = index
                     },
-                    onQuiz = {
-                        viewModel.quizFavorites()
-                        onOpenQuiz()
-                    },
-                    onFlashcards = { onPractice(DeckSource.BOOKMARKED) }
+                    filtered = filter.isActive
                 )
 
                 SavedTab.MISTAKES -> SavedPane(
@@ -174,11 +208,7 @@ fun SavedScreen(
                         sheetIds = words.map { it.id }.toLongArray()
                         sheetIndex = index
                     },
-                    onQuiz = {
-                        viewModel.quizMistakes()
-                        onOpenQuiz()
-                    },
-                    onFlashcards = { onPractice(DeckSource.MISTAKES) }
+                    filtered = filter.isActive
                 )
             }
         }
@@ -187,8 +217,49 @@ fun SavedScreen(
             hostState = snackbarHostState,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 88.dp)
+                .padding(bottom = Spacing.Content)
         )
+
+        if (settingsOpen) {
+            val isFavourites = tab == SavedTab.FAVOURITES
+            val raw = (if (isFavourites) allFavouriteEntries else allMistakeEntries).orEmpty()
+            val shown = (if (isFavourites) favouriteEntries else mistakeEntries).orEmpty()
+            SavedSettingsSheet(
+                title = if (isFavourites) "Favourites" else "Mistakes",
+                rawWords = raw.map { it.word },
+                missedById = missedById,
+                filter = filter,
+                matchCount = shown.size,
+                onType = { typeName = it?.name },
+                onToggleLetter = { c ->
+                    lettersText = if (c in lettersText) lettersText.filter { it != c } else lettersText + c
+                },
+                onMinMissed = { minMissed = it },
+                onReset = {
+                    typeName = null
+                    lettersText = ""
+                    minMissed = 0
+                },
+                onDismiss = { settingsOpen = false },
+                onQuiz = {
+                    settingsOpen = false
+                    val ids = shown.mapTo(HashSet()) { it.word.id }
+                    if (filter.isActive) {
+                        viewModel.quizWords(if (isFavourites) "Favorites" else "Mistakes", ids)
+                    } else if (isFavourites) {
+                        viewModel.quizFavorites()
+                    } else {
+                        viewModel.quizMistakes()
+                    }
+                    onOpenQuiz()
+                },
+                onFlashcards = {
+                    settingsOpen = false
+                    viewModel.prepareFlashcards(if (filter.isActive) shown.mapTo(HashSet()) { it.word.id } else null)
+                    onPractice(if (isFavourites) DeckSource.BOOKMARKED else DeckSource.MISTAKES)
+                }
+            )
+        }
 
         val openIndex = sheetIndex
         if (openIndex != null) {
@@ -216,10 +287,7 @@ fun SavedScreen(
     }
 }
 
-/**
- * One tab of the Saved screen: a summary card and the rows, with the Quiz and Flashcards actions
- * pinned underneath. Both tabs use it, so they always look and behave the same.
- */
+/** One tab of the Saved screen: a summary card and the rows. Both tabs use it. */
 @Composable
 private fun SavedPane(
     entries: List<SavedEntry>?,
@@ -232,23 +300,25 @@ private fun SavedPane(
     actionDescription: String,
     onAction: (Long) -> Unit,
     onOpen: (words: List<WordEntity>, index: Int) -> Unit,
-    onQuiz: () -> Unit,
-    onFlashcards: () -> Unit
+    filtered: Boolean
 ) {
     when {
         entries == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
 
-        entries.isEmpty() -> EmptyState(icon = emptyIcon, text = emptyText)
+        entries.isEmpty() -> EmptyState(
+            icon = if (filtered) AppIcons.SearchOff else emptyIcon,
+            text = if (filtered) "Nothing matches the practice settings." else emptyText
+        )
 
-        else -> Column(modifier = Modifier.fillMaxSize()) {
+        else -> {
             val breakdown = remember(entries) {
                 SavedSummary.typeCounts(entries.map { it.word })
                     .joinToString("  \u2022  ") { (type, count) -> type.countText(count) }
             }
             LazyColumn(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(Spacing.Content),
                 verticalArrangement = Arrangement.spacedBy(Spacing.Standard)
             ) {
@@ -270,16 +340,155 @@ private fun SavedPane(
                     )
                 }
             }
+        }
+    }
+}
+
+/** Filters chosen in the settings panel. */
+private data class SavedFilter(
+    val type: WordType? = null,
+    val letters: Set<Char> = emptySet(),
+    val minMissed: Int = 0
+) {
+    val isActive: Boolean get() = type != null || letters.isNotEmpty() || minMissed > 0
+
+    fun accepts(word: WordEntity, missed: Int): Boolean =
+        (type == null || word.type == type) &&
+            (letters.isEmpty() || word.word.trim().firstOrNull()?.uppercaseChar() in letters) &&
+            missed >= minMissed
+}
+
+/**
+ * Settings panel of the Saved screen. Pick what to practise, then start Flashcards or a Quiz on
+ * exactly those words. The count at the top updates with every change.
+ */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+private fun SavedSettingsSheet(
+    title: String,
+    rawWords: List<WordEntity>,
+    missedById: Map<Long, Int>,
+    filter: SavedFilter,
+    matchCount: Int,
+    onType: (WordType?) -> Unit,
+    onToggleLetter: (Char) -> Unit,
+    onMinMissed: (Int) -> Unit,
+    onReset: () -> Unit,
+    onDismiss: () -> Unit,
+    onQuiz: () -> Unit,
+    onFlashcards: () -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val types = remember(rawWords) { SavedSummary.typeCounts(rawWords).map { it.first } }
+    val letters = remember(rawWords) {
+        rawWords.mapNotNull { it.word.trim().firstOrNull()?.uppercaseChar() }
+            .filter { it.isLetter() }.distinct().sorted()
+    }
+    val hasMissed = remember(missedById) { missedById.isNotEmpty() }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.background
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .weight(1f, fill = false)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = Spacing.Content),
+                verticalArrangement = Arrangement.spacedBy(Spacing.Section)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Practice settings", style = MaterialTheme.typography.titleLarge)
+                        Text(
+                            text = "$title \u00B7 " + if (matchCount == 1) "1 word" else "$matchCount words",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    TextButton(onClick = onReset, enabled = filter.isActive) { Text("Reset") }
+                }
+
+                if (types.size > 1) {
+                    Column(verticalArrangement = Arrangement.spacedBy(Spacing.Compact)) {
+                        SetupHeading("Type")
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(Spacing.Compact),
+                            verticalArrangement = Arrangement.spacedBy(Spacing.Compact)
+                        ) {
+                            FilterChip(selected = filter.type == null, onClick = { onType(null) }, label = { Text("All") })
+                            types.forEach { t ->
+                                FilterChip(
+                                    selected = filter.type == t,
+                                    onClick = { onType(if (filter.type == t) null else t) },
+                                    label = { Text(t.label()) }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (letters.size > 1) {
+                    Column(verticalArrangement = Arrangement.spacedBy(Spacing.Compact)) {
+                        SetupHeading("Starting letter")
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(Spacing.Compact),
+                            verticalArrangement = Arrangement.spacedBy(Spacing.Compact)
+                        ) {
+                            letters.forEach { c ->
+                                FilterChip(
+                                    selected = c in filter.letters,
+                                    onClick = { onToggleLetter(c) },
+                                    label = { Text("$c") }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (hasMissed) {
+                    Column(verticalArrangement = Arrangement.spacedBy(Spacing.Compact)) {
+                        SetupHeading("Missed in quizzes")
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(Spacing.Compact),
+                            verticalArrangement = Arrangement.spacedBy(Spacing.Compact)
+                        ) {
+                            listOf(0 to "Any", 1 to "1+ times", 2 to "2+ times", 3 to "3+ times", 5 to "5+ times").forEach { (n, text) ->
+                                FilterChip(
+                                    selected = filter.minMissed == n,
+                                    onClick = { onMinMissed(n) },
+                                    label = { Text(text) }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             ActionBar(
                 primaryLabel = "Quiz",
                 primaryIcon = AppIcons.Pencil,
                 onPrimary = onQuiz,
                 secondaryLabel = "Flashcards",
                 secondaryIcon = AppIcons.Cards,
-                onSecondary = onFlashcards
+                onSecondary = onFlashcards,
+                enabled = matchCount > 0,
+                modifier = Modifier.padding(top = Spacing.Section)
             )
         }
     }
+}
+
+@Composable
+private fun SetupHeading(text: String) {
+    Text(
+        text = text.uppercase(),
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.primary,
+        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+    )
 }
 
 @Composable

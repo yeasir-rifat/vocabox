@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,12 +37,15 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.vocabulary.app.data.model.QuizMode
 import com.vocabulary.app.data.model.QuizSource
 import com.vocabulary.app.data.model.QuizViewStyle
 import com.vocabulary.app.domain.QuizLimits
 import com.vocabulary.app.ui.components.AppIcons
+import com.vocabulary.app.ui.components.shortTitle
 import com.vocabulary.app.ui.components.title
 import com.vocabulary.app.ui.theme.Spacing
 
@@ -127,14 +131,24 @@ internal fun QuizSetup(
                 ) { Text(if (allSelected) "Clear" else "Select all") }
             }
             if (config.viewStyle == QuizViewStyle.CARD) {
+                // Real grid: two columns, four rows.
                 Column(verticalArrangement = Arrangement.spacedBy(Spacing.Compact)) {
-                    QuizMode.entries.forEach { mode ->
-                        ModeCard(
-                            mode = mode,
-                            count = ui.perMode[mode] ?: 0,
-                            selected = mode in ui.effectiveModes,
-                            onToggle = { onToggleMode(mode) }
-                        )
+                    QuizMode.entries.chunked(2).forEach { pair ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(Spacing.Compact)
+                        ) {
+                            pair.forEach { mode ->
+                                ModeCard(
+                                    mode = mode,
+                                    count = ui.perMode[mode] ?: 0,
+                                    selected = mode in ui.effectiveModes,
+                                    onToggle = { onToggleMode(mode) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                            if (pair.size < 2) Spacer(Modifier.weight(1f))
+                        }
                     }
                 }
             } else {
@@ -157,30 +171,35 @@ internal fun QuizSetup(
             }
         }
 
-        // 4. Question number
-        Column(verticalArrangement = Arrangement.spacedBy(Spacing.Compact)) {
-            SetupLabel("Questions")
-            StepperBox(
-                label = "Question number",
-                caption = null,
-                value = config.questionCount,
-                min = QuizLimits.MIN_COUNT,
-                max = QuizLimits.MAX_COUNT,
-                onValueChange = onCount
-            )
-        }
-
-        // 5. List quiz time
-        Column(verticalArrangement = Arrangement.spacedBy(Spacing.Compact)) {
-            SetupLabel("List Quiz time")
-            StepperBox(
-                label = "List Quiz time",
-                caption = "minutes · 0 = no limit",
-                value = config.listTimeMinutes,
-                min = QuizLimits.MIN_MINUTES,
-                max = QuizLimits.MAX_MINUTES,
-                onValueChange = onListMinutes
-            )
+        // 4 + 5. Question number and list quiz time, side by side
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.Compact)
+        ) {
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.Compact)) {
+                SetupLabel("Questions")
+                StepperBox(
+                    label = "Question number",
+                    caption = null,
+                    value = config.questionCount,
+                    min = QuizLimits.MIN_COUNT,
+                    max = QuizLimits.MAX_COUNT,
+                    onValueChange = onCount,
+                    compact = true
+                )
+            }
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(Spacing.Compact)) {
+                SetupLabel("List time (min)")
+                StepperBox(
+                    label = "List Quiz time in minutes, 0 means no limit",
+                    caption = null,
+                    value = config.listTimeMinutes,
+                    min = QuizLimits.MIN_MINUTES,
+                    max = QuizLimits.MAX_MINUTES,
+                    onValueChange = onListMinutes,
+                    compact = true
+                )
+            }
         }
 
         // 6. Start buttons (one row, label only)
@@ -267,12 +286,17 @@ private fun RowScope.SourceTile(source: QuizSource, count: Int, selected: Boolea
 }
 
 @Composable
-private fun ModeCard(mode: QuizMode, count: Int, selected: Boolean, onToggle: () -> Unit) {
+private fun ModeCard(
+    mode: QuizMode,
+    count: Int,
+    selected: Boolean,
+    onToggle: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val enabled = count > 0
     val a11y = if (enabled) "${mode.title()}, ${questionsText(count)} available" else "${mode.title()}, not enough words yet"
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .alpha(if (enabled) 1f else 0.5f)
             .toggleable(value = selected, enabled = enabled, role = Role.Checkbox, onValueChange = { onToggle() })
             .semantics { contentDescription = a11y },
@@ -289,14 +313,19 @@ private fun ModeCard(mode: QuizMode, count: Int, selected: Boolean, onToggle: ()
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = Spacing.Target)
-                .padding(start = Spacing.Content, top = Spacing.Standard, bottom = Spacing.Standard, end = Spacing.Compact),
+                .heightIn(min = 64.dp)
+                .padding(start = Spacing.Standard, top = Spacing.Compact, bottom = Spacing.Compact, end = Spacing.Micro),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(mode.title(), style = MaterialTheme.typography.titleMedium)
                 Text(
-                    text = if (enabled) "${questionsText(count)} available" else "Not enough words yet",
+                    mode.shortTitle(),
+                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 12.sp),
+                    maxLines = 1,
+                    softWrap = false
+                )
+                Text(
+                    text = if (enabled) (if (count == 1) "1 Item" else "$count Items") else "No words",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -317,7 +346,7 @@ private fun ModeRow(mode: QuizMode, count: Int, selected: Boolean, onToggle: () 
             .toggleable(value = selected, enabled = enabled, role = Role.Checkbox, onValueChange = { onToggle() })
             .semantics { contentDescription = a11y }
             .heightIn(min = 52.dp)
-            .padding(horizontal = Spacing.Compact, vertical = Spacing.Compact),
+            .padding(start = Spacing.Compact, end = Spacing.Content, top = Spacing.Compact, bottom = Spacing.Compact),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(Spacing.Compact)
     ) {
