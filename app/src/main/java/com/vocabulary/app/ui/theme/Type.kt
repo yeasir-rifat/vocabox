@@ -6,7 +6,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 /**
- * Type scale (DM Sans; Bangla runs are switched to Noto Serif Bengali by String.bn()).
+ * Type scale (DM Sans; Bangla runs are switched to Kalpurush by String.bn()).
  *
  *  displaySmall   32/40  vocabulary word on flashcards and word detail
  *  headlineMedium 26/34  screen titles

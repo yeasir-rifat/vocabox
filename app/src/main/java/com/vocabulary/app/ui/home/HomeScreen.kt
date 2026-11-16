@@ -1,5 +1,6 @@
 package com.vocabulary.app.ui.home
 
+import com.vocabulary.app.ui.theme.TimesNewRoman
 import com.vocabulary.app.ui.components.AppIcons
 import com.vocabulary.app.ui.theme.Spacing
 import androidx.compose.ui.text.font.FontFamily
@@ -53,6 +54,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -353,28 +357,32 @@ private fun DailyWordCard(word: WordEntity, onClick: () -> Unit) {
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+                val posColor = MaterialTheme.colorScheme.onSurfaceVariant
                 Text(
-                    text = word.word,
+                    text = buildAnnotatedString {
+                        append(word.word)
+                        val pos = word.partOfSpeech.shortPartOfSpeech()
+                        if (pos.isNotEmpty()) {
+                            append("  ")
+                            withStyle(
+                                SpanStyle(
+                                    fontSize = 14.sp,
+                                    fontStyle = FontStyle.Italic,
+                                    fontWeight = FontWeight.Normal,
+                                    color = posColor
+                                )
+                            ) { append(pos) }
+                        }
+                    },
                     style = MaterialTheme.typography.displaySmall,
+                    fontFamily = TimesNewRoman,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = word.partOfSpeech.shortPartOfSpeech(),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontStyle = FontStyle.Italic,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
                     text = word.banglaMeaning.bn(),
-                    style = MaterialTheme.typography.titleLarge.copy(lineHeight = 32.sp)
-                )
-                Text(
-                    text = word.englishMeaning,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
+                    fontFamily = TimesNewRoman,
+                    style = MaterialTheme.typography.titleLarge.copy(lineHeight = 32.sp),
                 )
             }
         }

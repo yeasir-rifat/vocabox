@@ -118,7 +118,8 @@ fun VocabularyNavHost(
         ) {
             GroupDetailScreen(
                 onBack = { navController.popBackStack() },
-                onOpenQuiz = { navController.navigateToTab(Screen.Quiz) }
+                onOpenQuiz = { navController.navigateToTab(Screen.Quiz) },
+                onOpenWord = { wordId -> navController.navigate(Screen.WordDetail.createRoute(wordId)) }
             )
         }
         composable(Screen.Stats.route) {

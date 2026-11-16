@@ -24,5 +24,5 @@ class ListOptionsStore @Inject constructor() {
 
     fun shuffleAgain() = _options.update { it.copy(shuffleSeed = System.nanoTime()) }
 
-    fun reset() = _options.update { ListOptions(shuffleSeed = it.shuffleSeed, showStrip = it.showStrip, cardsStrip = it.cardsStrip) }
+    fun reset() = _options.update { ListOptions(shuffleSeed = it.shuffleSeed, showStrip = it.showStrip, cardsStrip = it.cardsStrip, wordView = it.wordView) }
 }

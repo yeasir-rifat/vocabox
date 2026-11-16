@@ -1,5 +1,17 @@
 package com.vocabulary.app.ui.flashcard
 
+import com.vocabulary.app.ui.groups.banglaMeaningLine
+import com.vocabulary.app.ui.groups.antonymPairs
+import com.vocabulary.app.ui.groups.synonymPairs
+import com.vocabulary.app.ui.groups.posLabel
+import com.vocabulary.app.ui.groups.highlightPhrase
+import com.vocabulary.app.ui.components.ExampleBullets
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.background
+import com.vocabulary.app.ui.theme.TimesNewRoman
 import com.vocabulary.app.ui.components.AppProgressBar
 import com.vocabulary.app.ui.components.AppIcons
 import com.vocabulary.app.ui.components.AppCard
@@ -282,12 +294,18 @@ private fun SwipeLabel(
     )
 }
 
+/**
+ * A word card. Tap to flip. The star (when [onToggleBookmark] is given) and the speaker sit together in
+ * the top right corner of both faces.
+ */
 @Composable
 internal fun FlipCard(
     word: WordEntity,
     flipped: Boolean,
     onFlip: () -> Unit,
-    onSpeak: (String) -> Unit
+    onSpeak: (String) -> Unit,
+    isBookmarked: Boolean = false,
+    onToggleBookmark: (() -> Unit)? = null
 ) {
     val rotation by animateFloatAsState(
         targetValue = if (flipped) 180f else 0f,
@@ -310,7 +328,7 @@ internal fun FlipCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     ) {
         if (rotation <= 90f) {
-            CardFront(word, onSpeak)
+            CardFront(word, onSpeak, isBookmarked, onToggleBookmark)
         } else {
             // The back face is mirrored by the parent rotation, so rotate it back.
             Box(
@@ -318,109 +336,240 @@ internal fun FlipCard(
                     .fillMaxSize()
                     .graphicsLayer { rotationY = 180f }
             ) {
-                CardBack(word, onSpeak)
+                CardBack(word, onSpeak, isBookmarked, onToggleBookmark)
             }
         }
     }
 }
 
+/** Star and speaker, side by side. */
 @Composable
-private fun CardFront(word: WordEntity, onSpeak: (String) -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = word.type.singularLabel().uppercase(),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = word.word,
-            style = MaterialTheme.typography.displaySmall.copy(fontSize = 40.sp, lineHeight = 48.sp),
-            textAlign = TextAlign.Center
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = word.partOfSpeech.shortPartOfSpeech(),
-            style = MaterialTheme.typography.bodyLarge,
-            fontStyle = FontStyle.Italic,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.height(16.dp))
-        FilledTonalIconButton(
-            onClick = { onSpeak(word.word) },
-            modifier = Modifier.size(52.dp)
-        ) {
-            Icon(AppIcons.Volume, contentDescription = "Pronounce")
+private fun CardActions(
+    word: WordEntity,
+    onSpeak: (String) -> Unit,
+    isBookmarked: Boolean,
+    onToggleBookmark: (() -> Unit)?
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        if (onToggleBookmark != null) {
+            IconButton(onClick = onToggleBookmark) {
+                Icon(
+                    imageVector = if (isBookmarked) AppIcons.StarFilled else AppIcons.Star,
+                    contentDescription = if (isBookmarked) "Remove bookmark" else "Add bookmark",
+                    tint = if (isBookmarked) MaterialTheme.colorScheme.secondary
+                    else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
-        Spacer(Modifier.height(16.dp))
-        LevelBadge(word.level)
+        IconButton(onClick = { onSpeak(word.word) }) {
+            Icon(
+                AppIcons.Volume,
+                contentDescription = "Pronounce",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 
+/** Font size of a headword: the longer the phrase, the smaller. */
+private fun frontFontSize(text: String) = when {
+    text.length <= 14 -> 40.sp
+    text.length <= 28 -> 32.sp
+    else -> 26.sp
+}
+
+/** Font size of the Bangla meaning on the back: long sentences get a smaller size. */
+private fun meaningFontSize(text: String) = when {
+    text.length <= 18 -> 26.sp
+    text.length <= 30 -> 22.sp
+    else -> 19.sp
+}
+
 @Composable
-private fun CardBack(word: WordEntity, onSpeak: (String) -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+private fun CardFront(
+    word: WordEntity,
+    onSpeak: (String) -> Unit,
+    isBookmarked: Boolean,
+    onToggleBookmark: (() -> Unit)?
+) {
+    val typeLabel = word.type.singularLabel()
+    val pos = word.partOfSpeech.shortPartOfSpeech()
+    // The part of speech of an idiom is "idiom" again, so it is shown only when it adds something.
+    val showPos = pos.isNotBlank() && !pos.trim('.').equals(typeLabel, ignoreCase = true)
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp, vertical = 56.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = typeLabel.uppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(16.dp))
             Text(
                 text = word.word,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f)
+                style = MaterialTheme.typography.displaySmall.copy(
+                    fontSize = frontFontSize(word.word),
+                    lineHeight = frontFontSize(word.word) * 1.2f
+                ),
+                fontFamily = TimesNewRoman,
+                textAlign = TextAlign.Center
             )
-            IconButton(onClick = { onSpeak(word.word) }) {
-                Icon(AppIcons.Volume, contentDescription = "Pronounce")
+            if (showPos) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = pos,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontFamily = TimesNewRoman,
+                    fontStyle = FontStyle.Italic,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(
-                text = word.banglaMeaning.bn(),
-                style = MaterialTheme.typography.headlineSmall.copy(fontSize = 26.sp, lineHeight = 38.sp)
-            )
-            Text(
-                text = word.englishMeaning,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        if (word.synonyms.isNotEmpty()) {
-            LabeledText("Synonyms", word.synonyms.joinToString(", "))
-        }
-        if (word.antonyms.isNotEmpty()) {
-            LabeledText("Antonyms", word.antonyms.joinToString(", "))
-        }
-        if (word.example.isNotBlank()) {
-            LabeledText("Example", "\u201C${word.example}\u201D", italic = true)
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 4.dp, end = 4.dp)
+        ) {
+            CardActions(word, onSpeak, isBookmarked, onToggleBookmark)
         }
     }
 }
 
 @Composable
-private fun LabeledText(label: String, value: String, italic: Boolean = false) {
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+private fun CardBack(
+    word: WordEntity,
+    onSpeak: (String) -> Unit,
+    isBookmarked: Boolean,
+    onToggleBookmark: (() -> Unit)?
+) {
+    val synonyms = word.synonymPairs()
+    val antonyms = word.antonymPairs()
+    val pos = word.posLabel()
+    val bangla = word.banglaMeaningLine()
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Header: the word with its part of speech, and the star and speaker in the corner.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 24.dp, end = 4.dp, top = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)) {
+                        append(word.word)
+                    }
+                    if (pos.isNotEmpty()) {
+                        append("  ")
+                        withStyle(
+                            SpanStyle(
+                                fontSize = 14.sp,
+                                fontStyle = FontStyle.Italic,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        ) { append(pos) }
+                    }
+                },
+                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 32.sp, lineHeight = 40.sp),
+                fontFamily = TimesNewRoman,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp)
+            )
+            CardActions(word, onSpeak, isBookmarked, onToggleBookmark)
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(start = 24.dp, end = 24.dp, top = 8.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Meaning block: Bangla first, English under it.
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = bangla.bn(),
+                    fontFamily = TimesNewRoman,
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontSize = meaningFontSize(bangla),
+                        lineHeight = meaningFontSize(bangla) * 1.45f
+                    )
+                )
+                Text(
+                    text = word.englishMeaning,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontFamily = TimesNewRoman,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (synonyms.isNotEmpty()) {
+                BackSection("Synonyms") { TermLine(synonyms) }
+            }
+            if (antonyms.isNotEmpty()) {
+                BackSection("Antonyms") { TermLine(antonyms) }
+            }
+            if (word.example.isNotBlank()) {
+                val accent = MaterialTheme.colorScheme.primary
+                BackSection("Examples") {
+                    ExampleBullets(
+                        example = word.example,
+                        fontFamily = TimesNewRoman,
+                        render = { highlightPhrase(it, word.word, accent) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BackSection(label: String, content: @Composable () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+        Spacer(Modifier.height(2.dp))
         Text(
             text = label.uppercase(),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold
         )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyLarge,
-            fontStyle = if (italic) FontStyle.Italic else FontStyle.Normal
-        )
+        content()
     }
+}
+
+/** "Forsake (পরিত্যাগ করা), desert (ত্যাগ করে যাওয়া)": one comma separated line. */
+@Composable
+private fun TermLine(terms: List<Pair<String, String>>) {
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    Text(
+        text = buildAnnotatedString {
+            terms.forEachIndexed { index, (rawTerm, bn) ->
+                if (index > 0) append(", ")
+                val term = if (index == 0) rawTerm.replaceFirstChar { it.uppercase() } else rawTerm
+                withStyle(SpanStyle(fontWeight = FontWeight.Medium)) { append(term) }
+                if (bn.isNotBlank()) {
+                    withStyle(SpanStyle(color = muted)) {
+                        append(" (")
+                        append(bn.bn())
+                        append(")")
+                    }
+                }
+            }
+        },
+        style = MaterialTheme.typography.bodyLarge,
+        fontFamily = TimesNewRoman
+    )
 }

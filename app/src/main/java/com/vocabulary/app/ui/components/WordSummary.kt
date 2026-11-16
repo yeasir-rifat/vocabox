@@ -1,5 +1,6 @@
 package com.vocabulary.app.ui.components
 
+import com.vocabulary.app.ui.theme.TimesNewRoman
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
@@ -46,11 +47,13 @@ fun WordSummary(
                 }
             },
             style = MaterialTheme.typography.titleMedium,
+            fontFamily = TimesNewRoman,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Text(
             text = word.banglaMeaning.bn(),
+            fontFamily = TimesNewRoman,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,

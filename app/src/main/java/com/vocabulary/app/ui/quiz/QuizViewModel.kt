@@ -265,6 +265,7 @@ class QuizViewModel @Inject constructor(
             questions = generated
             activeModes = modes
             index = 0
+            pausedStepMs = null
             answered.clear()
             startedAt = System.currentTimeMillis()
             when (kind) {
@@ -294,11 +295,56 @@ class QuizViewModel @Inject constructor(
     fun onNext() {
         val current = _state.value as? QuizState.Active ?: return
         if (current.selected == null) return
+        if (current.index < index) {
+            // Looking at an earlier question: go one forward.
+            showAt(current.index + 1)
+            return
+        }
         if (current.isLast) {
             finish()
         } else {
             index++
             showQuestion()
+        }
+    }
+
+    /** Time left of the question in play while an earlier question is on screen. */
+    private var pausedStepMs: Long? = null
+
+    /** Goes back one question to look at it again. The clock of an unanswered question waits. */
+    fun onPrevious() {
+        val current = _state.value as? QuizState.Active ?: return
+        if (current.index == 0) return
+        if (current.index == index && current.selected == null) {
+            pausedStepMs = (questionDeadline - System.currentTimeMillis()).coerceAtLeast(1_000L)
+            timerJob?.cancel()
+        }
+        showAt(current.index - 1)
+    }
+
+    /** Shows question [i] (at most the one in play): answered ones read-only, the open one with its clock. */
+    private fun showAt(i: Int) {
+        val answeredItem = answered.getOrNull(i)
+        if (answeredItem != null) {
+            _state.value = QuizState.Active(
+                question = questions[i],
+                index = i,
+                total = questions.size,
+                selected = answeredItem.selected,
+                timeLeft = 0
+            )
+        } else {
+            val ms = pausedStepMs ?: (QuizLimits.STEP_SECONDS_PER_QUESTION * 1_000L)
+            pausedStepMs = null
+            questionDeadline = System.currentTimeMillis() + ms
+            _state.value = QuizState.Active(
+                question = questions[i],
+                index = i,
+                total = questions.size,
+                selected = null,
+                timeLeft = secondsLeft(questionDeadline)
+            )
+            runStepTimer(i)
         }
     }
 

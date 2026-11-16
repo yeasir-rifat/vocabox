@@ -1,5 +1,8 @@
 package com.vocabulary.app.ui.detail
 
+import com.vocabulary.app.ui.components.exampleLines
+import com.vocabulary.app.ui.components.ExampleBullets
+import com.vocabulary.app.ui.theme.TimesNewRoman
 import com.vocabulary.app.ui.components.AppIcons
 import com.vocabulary.app.ui.components.AppCard
 import com.vocabulary.app.ui.theme.bn
@@ -154,6 +157,7 @@ private fun WordDetailContent(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = word.word,
+                            fontFamily = TimesNewRoman,
                             style = MaterialTheme.typography.displaySmall
                         )
                         Text(
@@ -195,11 +199,13 @@ private fun WordDetailContent(
                 ) {
                     Text(
                         text = word.banglaMeaning.bn(),
-                        style = MaterialTheme.typography.titleLarge.copy(lineHeight = 32.sp)
+                        fontFamily = TimesNewRoman,
+                        style = MaterialTheme.typography.titleLarge.copy(lineHeight = 32.sp),
                     )
                     Text(
                         text = word.englishMeaning,
                         style = MaterialTheme.typography.bodyLarge,
+                        fontFamily = TimesNewRoman,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -225,13 +231,12 @@ private fun WordDetailContent(
                         modifier = Modifier.padding(start = 20.dp, top = 12.dp, bottom = 12.dp, end = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "\u201C${word.example}\u201D",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontStyle = FontStyle.Italic,
+                        ExampleBullets(
+                            example = word.example,
+                            fontFamily = TimesNewRoman,
                             modifier = Modifier.weight(1f)
                         )
-                        IconButton(onClick = { onSpeak(word.example) }) {
+                        IconButton(onClick = { onSpeak(word.exampleLines().joinToString(" ")) }) {
                             Icon(
                                 AppIcons.Volume,
                                 contentDescription = "Read the example aloud"
@@ -275,7 +280,7 @@ private fun ChipSection(
         ) {
             items.forEach { item ->
                 // Tapping a chip pronounces that word.
-                SuggestionChip(onClick = { onSpeak(item) }, label = { Text(item) })
+                SuggestionChip(onClick = { onSpeak(item) }, label = { Text(item, fontFamily = TimesNewRoman) })
             }
         }
     }

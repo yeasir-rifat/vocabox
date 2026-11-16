@@ -52,6 +52,6 @@ object ItemQuestions {
         text.replace("{word}", word.word)
             .replace("{meaning}", word.banglaMeaning)
             .replace("{english}", word.englishMeaning)
-            .replace("{example}", word.example)
+            .replace("{example}", word.example.lines().firstOrNull { it.isNotBlank() }.orEmpty().trim().removePrefix("\u2022").trim())
             .replace("{blank}", blank.orEmpty())
 }

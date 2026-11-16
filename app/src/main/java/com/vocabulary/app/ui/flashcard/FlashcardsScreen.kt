@@ -1,5 +1,6 @@
 package com.vocabulary.app.ui.flashcard
 
+import com.vocabulary.app.ui.theme.TimesNewRoman
 import com.vocabulary.app.ui.components.AppIcons
 import com.vocabulary.app.ui.components.AppCard
 import com.vocabulary.app.ui.theme.bn
@@ -467,9 +468,10 @@ private fun MissedRow(word: WordEntity, onClick: () -> Unit) {
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            Text(text = word.word, style = MaterialTheme.typography.titleMedium)
+            Text(text = word.word, style = MaterialTheme.typography.titleMedium, fontFamily = TimesNewRoman)
             Text(
                 text = word.banglaMeaning.bn(),
+                fontFamily = TimesNewRoman,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

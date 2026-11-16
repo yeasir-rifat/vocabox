@@ -1,5 +1,8 @@
 package com.vocabulary.app.ui.quiz
 
+import androidx.compose.material3.FilledTonalIconButton
+import com.vocabulary.app.ui.theme.markup
+import com.vocabulary.app.ui.theme.TimesNewRoman
 import com.vocabulary.app.ui.components.AppProgressBar
 import com.vocabulary.app.ui.components.AppIcons
 import androidx.compose.ui.graphics.StrokeCap
@@ -123,6 +126,7 @@ fun QuizScreen(
             state = s,
             onAnswer = viewModel::onAnswer,
             onNext = viewModel::onNext,
+            onPrevious = viewModel::onPrevious,
             modifier = modifier
         )
 
@@ -159,6 +163,7 @@ private fun QuizQuestionContent(
     state: QuizState.Active,
     onAnswer: (Int) -> Unit,
     onNext: () -> Unit,
+    onPrevious: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val q = state.question
@@ -184,7 +189,7 @@ private fun QuizQuestionContent(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f)
                 )
-                Text(
+                if (!answered) Text(
                     text = "${state.timeLeft}s",
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
@@ -221,14 +226,16 @@ private fun QuizQuestionContent(
                 }
                 Text(
                     text = q.prompt.bn(),
-                    style = if (q.prompt.length > 100) MaterialTheme.typography.titleMedium
-                    else MaterialTheme.typography.titleLarge,
+                    fontFamily = TimesNewRoman,
+                    style = if (q.prompt.length > 100) MaterialTheme.typography.titleSmall
+                    else MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
                 if (q.hint.isNotBlank()) {
                     Text(
                         text = q.hint.bn(),
+                        fontFamily = TimesNewRoman,
                         style = MaterialTheme.typography.bodyMedium,
                         fontStyle = FontStyle.Italic
                     )
@@ -245,6 +252,16 @@ private fun QuizQuestionContent(
                 isSelected = state.selected == i,
                 onClick = { onAnswer(i) }
             )
+        }
+
+        // Previous and next question. Next opens once this question is answered.
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            FilledTonalIconButton(onClick = onPrevious, enabled = state.index > 0) {
+                Icon(AppIcons.ChevronLeft, contentDescription = "Previous question")
+            }
+            FilledTonalIconButton(onClick = onNext, enabled = answered && !state.isLast) {
+                Icon(AppIcons.ChevronRight, contentDescription = "Next question")
+            }
         }
 
         if (answered) {
@@ -273,22 +290,24 @@ private fun QuizQuestionContent(
                     )
                     q.explanation.lines().filter { it.isNotBlank() }.forEachIndexed { i, line ->
                         Text(
-                            text = line.bn(),
+                            text = line.markup(),
+                            fontFamily = TimesNewRoman,
                             style = if (i == 0) MaterialTheme.typography.titleMedium
-                            else MaterialTheme.typography.bodyMedium,
-                            fontWeight = if (i == 0) FontWeight.Bold else FontWeight.Normal
+                            else MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
             }
-            Button(
-                shape = MaterialTheme.shapes.small,
-                onClick = onNext,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-            ) {
-                Text(if (state.isLast) "See result" else "Next")
+            if (state.isLast) {
+                Button(
+                    shape = MaterialTheme.shapes.small,
+                    onClick = onNext,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                ) {
+                    Text("See result")
+                }
             }
         }
     }
@@ -365,6 +384,7 @@ private fun OptionCard(
             }
             Text(
                 text = text.bn(),
+                fontFamily = TimesNewRoman,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f)
             )
@@ -503,11 +523,13 @@ private fun ReviewCard(item: AnsweredQuestion) {
         ) {
             Text(
                 text = listOf(q.instruction, q.prompt).filter { it.isNotBlank() }.joinToString(": ").bn(),
+                fontFamily = TimesNewRoman,
                 style = MaterialTheme.typography.titleMedium
             )
             if (item.isCorrect) {
                 Text(
                     text = "Your answer: ${q.correctAnswer}".bn(),
+                    fontFamily = TimesNewRoman,
                     style = MaterialTheme.typography.bodyMedium,
                     color = AppColors.success,
                     fontWeight = FontWeight.Medium
@@ -515,11 +537,13 @@ private fun ReviewCard(item: AnsweredQuestion) {
             } else {
                 Text(
                     text = "Your answer: ${item.selectedText ?: "No answer"}".bn(),
+                    fontFamily = TimesNewRoman,
                     style = MaterialTheme.typography.bodyMedium,
                     color = AppColors.danger
                 )
                 Text(
                     text = "Correct: ${q.correctAnswer}".bn(),
+                    fontFamily = TimesNewRoman,
                     style = MaterialTheme.typography.bodyMedium,
                     color = AppColors.success,
                     fontWeight = FontWeight.Medium
@@ -542,9 +566,9 @@ private fun ExplanationBlock(explanation: String) {
         )
         explanation.lines().filter { it.isNotBlank() }.forEachIndexed { i, line ->
             Text(
-                text = line.bn(),
+                text = line.markup(),
+                fontFamily = TimesNewRoman,
                 style = if (i == 0) MaterialTheme.typography.titleSmall else MaterialTheme.typography.bodyMedium,
-                fontWeight = if (i == 0) FontWeight.Bold else FontWeight.Normal,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

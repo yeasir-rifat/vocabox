@@ -1,5 +1,8 @@
 package com.vocabulary.app.ui.groups
 
+import com.vocabulary.app.ui.list.WordSheet
+import com.vocabulary.app.data.model.WordView
+import com.vocabulary.app.ui.theme.TimesNewRoman
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -144,6 +147,7 @@ fun GroupsScreen(
             stripEnabled = false,
             onStripChange = {},
             showStripSwitch = false,
+            showAppearance = true,
             onOptionsChange = viewModel::setOptions,
             onTypeSelected = viewModel::onTypeSelected,
             onLevelSelected = viewModel::onLevelSelected,
@@ -211,6 +215,7 @@ private fun GroupCard(group: WordGroup, readCount: Int, onOpen: () -> Unit, onQu
 fun GroupDetailScreen(
     onBack: () -> Unit,
     onOpenQuiz: () -> Unit,
+    onOpenWord: (Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: GroupDetailViewModel = hiltViewModel()
 ) {
@@ -218,6 +223,7 @@ fun GroupDetailScreen(
     val readIds by viewModel.readIds.collectAsStateWithLifecycle()
     val bookmarkedIds by viewModel.bookmarkedIds.collectAsStateWithLifecycle()
     val categoryWords by viewModel.categoryWords.collectAsStateWithLifecycle()
+    val wordView by viewModel.wordView.collectAsStateWithLifecycle()
     var selectedId by rememberSaveable { mutableStateOf<Long?>(null) }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -249,8 +255,9 @@ fun GroupDetailScreen(
                         word = word,
                         read = word.id in readIds,
                         onClick = {
-                            selectedId = word.id
                             viewModel.markRead(word.id)
+                            // The Appearance setting decides how the word opens.
+                            if (wordView == WordView.DETAILS) onOpenWord(word.id) else selectedId = word.id
                         }
                     )
                 }
@@ -269,22 +276,38 @@ fun GroupDetailScreen(
                 ) { Text("Quiz this group (${g.words.size} words)") }
             }
 
-            (g.words + categoryWords).firstOrNull { it.id == selectedId }?.let { word ->
-                WordPopup(
-                    word = word,
-                    related = remember(word, categoryWords) { word.relatedGroupVerbs(categoryWords) },
-                    onRelatedClick = { other ->
-                        selectedId = other.id
-                        viewModel.markRead(other.id)
-                    },
-                    isBookmarked = word.id in bookmarkedIds,
-                    onToggleBookmark = { viewModel.toggleBookmark(word.id) },
-                    onDismiss = {
-                        viewModel.stopSpeaking()
-                        selectedId = null
-                    },
-                    onSpeak = viewModel::speak
-                )
+            val dismissWord = {
+                viewModel.stopSpeaking()
+                selectedId = null
+            }
+            if (wordView == WordView.SHEET) {
+                val sheetIndex = g.words.indexOfFirst { it.id == selectedId }
+                if (sheetIndex >= 0) {
+                    WordSheet(
+                        words = g.words,
+                        startIndex = sheetIndex,
+                        bookmarkedIds = bookmarkedIds,
+                        onToggleBookmark = viewModel::toggleBookmark,
+                        onSpeak = viewModel::speak,
+                        onWordShown = viewModel::markRead,
+                        onDismiss = dismissWord
+                    )
+                }
+            } else if (wordView == WordView.POPUP) {
+                (g.words + categoryWords).firstOrNull { it.id == selectedId }?.let { word ->
+                    WordPopup(
+                        word = word,
+                        related = remember(word, categoryWords) { word.relatedGroupVerbs(categoryWords) },
+                        onRelatedClick = { other ->
+                            selectedId = other.id
+                            viewModel.markRead(other.id)
+                        },
+                        isBookmarked = word.id in bookmarkedIds,
+                        onToggleBookmark = { viewModel.toggleBookmark(word.id) },
+                        onDismiss = dismissWord,
+                        onSpeak = viewModel::speak
+                    )
+                }
             }
         }
     }
@@ -306,6 +329,7 @@ private fun WordListCard(word: WordEntity, read: Boolean, onClick: () -> Unit) {
                     Text(
                         text = word.englishMeaning,
                         style = MaterialTheme.typography.titleMedium,
+                        fontFamily = TimesNewRoman,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -338,11 +362,13 @@ private fun WordListCard(word: WordEntity, read: Boolean, onClick: () -> Unit) {
                             }
                         },
                         style = MaterialTheme.typography.titleMedium,
+                        fontFamily = TimesNewRoman,
                         maxLines = if (word.isPhrase()) 2 else 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         text = word.banglaMeaningLine().bn(),
+                        fontFamily = TimesNewRoman,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,

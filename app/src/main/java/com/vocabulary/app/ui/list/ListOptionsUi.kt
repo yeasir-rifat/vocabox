@@ -1,5 +1,6 @@
 package com.vocabulary.app.ui.list
 
+import com.vocabulary.app.data.model.WordView
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -161,6 +162,7 @@ fun ListOptionsSidebar(
     onReset: () -> Unit,
     onClose: () -> Unit,
     showStripSwitch: Boolean = true,
+    showAppearance: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     BackHandler(enabled = visible, onBack = onClose)
@@ -291,6 +293,28 @@ fun ListOptionsSidebar(
                                 count = options.count,
                                 onCountChange = { onOptionsChange(options.copy(count = it)) }
                             )
+                        }
+
+                        if (showAppearance) {
+                            SettingsGroup("Appearance") {
+                                FieldLabel("How a word opens")
+                                WordView.entries.forEach { view ->
+                                    AppearanceRow(
+                                        title = when (view) {
+                                            WordView.DETAILS -> "Word Details"
+                                            WordView.POPUP -> "Popup Modal"
+                                            WordView.SHEET -> "Bottom Popup"
+                                        },
+                                        subtitle = when (view) {
+                                            WordView.DETAILS -> "Opens the full word page"
+                                            WordView.POPUP -> "A card in the middle of the screen"
+                                            WordView.SHEET -> "A sheet from the bottom, swipe between words"
+                                        },
+                                        selected = options.wordView == view,
+                                        onClick = { onOptionsChange(options.copy(wordView = view)) }
+                                    )
+                                }
+                            }
                         }
 
                         if (showStripSwitch) {
@@ -540,6 +564,31 @@ private fun LetterPill(letter: Char, selected: Boolean, enabled: Boolean, onClic
                 else -> scheme.onSurface
             }
         )
+    }
+}
+
+@Composable
+private fun AppearanceRow(title: String, subtitle: String, selected: Boolean, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.small)
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        androidx.compose.material3.RadioButton(selected = selected, onClick = null)
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = Spacing.Standard)
+        ) {
+            Text(text = title, style = MaterialTheme.typography.titleSmall)
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 

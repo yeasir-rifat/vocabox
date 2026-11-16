@@ -1,5 +1,6 @@
 package com.vocabulary.app.ui.groups
 
+import com.vocabulary.app.data.model.WordView
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -87,8 +88,14 @@ class GroupDetailViewModel @Inject constructor(
     private val repository: WordRepository,
     source: WordGroupsSource,
     private val launcher: QuizLauncher,
-    private val tts: TtsManager
+    private val tts: TtsManager,
+    optionsStore: ListOptionsStore
 ) : ViewModel() {
+
+    /** How a tapped word opens (Appearance in the Groupwise settings). */
+    val wordView: StateFlow<WordView> = optionsStore.options
+        .map { it.wordView }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), optionsStore.options.value.wordView)
 
     private val index: Int = savedStateHandle.get<Int>(Screen.GroupDetail.ARG_INDEX) ?: 0
 

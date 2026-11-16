@@ -1,5 +1,7 @@
 package com.vocabulary.app.ui.groups
 
+import com.vocabulary.app.ui.components.ExampleBullets
+import com.vocabulary.app.ui.theme.TimesNewRoman
 import android.content.Context
 import android.os.Build
 import android.view.WindowManager
@@ -35,6 +37,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
@@ -63,12 +66,11 @@ internal fun WordEntity.isOneWord(): Boolean = type == WordType.ONE_WORD_SUB
 internal fun WordEntity.posLabel(): String =
     if (isPhrase() || type == WordType.PREPOSITION) "" else partOfSpeech.shortPartOfSpeech()
 
-/** The example in curly quotes, with the phrase in bold when it appears in the sentence as written. */
+/** The example without quotes, with the phrase in bold when it appears in the sentence as written. */
 internal fun highlightPhrase(example: String, phrase: String, color: androidx.compose.ui.graphics.Color): AnnotatedString {
     val target = phrase.trim()
     val start = if (target.isEmpty()) -1 else example.indexOf(target, ignoreCase = true)
     return buildAnnotatedString {
-        append("\u201C")
         if (start >= 0) {
             append(example.substring(0, start))
             withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = color)) {
@@ -78,7 +80,6 @@ internal fun highlightPhrase(example: String, phrase: String, color: androidx.co
         } else {
             append(example)
         }
-        append("\u201D")
     }
 }
 
@@ -187,14 +188,16 @@ internal fun WordSections(
         PopupSection(title = "Bengali Meaning") {
             Text(
                 text = word.banglaMeaningLine().bn(),
-                style = MaterialTheme.typography.titleLarge
+                fontFamily = TimesNewRoman,
+                style = MaterialTheme.typography.titleLarge,
             )
         }
         Separator()
         PopupSection(title = if (word.isOneWord()) "Phrase" else "English Meaning") {
             Text(
                 text = word.englishMeaning,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                fontFamily = TimesNewRoman
             )
         }
         if (synonyms.isNotEmpty()) {
@@ -208,10 +211,11 @@ internal fun WordSections(
         if (word.example.isNotBlank()) {
             Separator()
             PopupSection(title = "Examples") {
-                Text(
-                    text = highlightPhrase(word.example, word.word, MaterialTheme.colorScheme.primary),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontStyle = FontStyle.Italic
+                val accent = MaterialTheme.colorScheme.primary
+                ExampleBullets(
+                    example = word.example,
+                    fontFamily = TimesNewRoman,
+                    render = { highlightPhrase(it, word.word, accent) }
                 )
             }
         }
@@ -250,6 +254,7 @@ internal fun PopupHeader(
                 SpanStyle(
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.Normal,
+                    fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             ) { append(pos) }
@@ -272,6 +277,7 @@ internal fun PopupHeader(
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineSmall,
+                fontFamily = TimesNewRoman,
                 modifier = Modifier.padding(end = Spacing.Compact)
             )
         }
@@ -285,6 +291,7 @@ internal fun PopupHeader(
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineSmall,
+                fontFamily = TimesNewRoman,
                 modifier = Modifier.weight(1f)
             )
             HeaderActions(word, isBookmarked, onToggleBookmark, onSpeak, onClose)
@@ -333,27 +340,28 @@ private fun PopupSection(title: String, content: @Composable () -> Unit) {
     }
 }
 
-/** "forsake (পরিত্যাগ করা)": the English term, then its Bangla meaning in brackets. */
+/** "Forsake (পরিত্যাগ করা), desert (ত্যাগ করে যাওয়া), ...": one comma separated line, wrapping as needed. */
 @Composable
 private fun TermList(terms: List<Pair<String, String>>) {
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
-    Column(verticalArrangement = Arrangement.spacedBy(Spacing.Compact)) {
-        terms.forEach { (term, bangla) ->
-            Text(
-                text = buildAnnotatedString {
-                    withStyle(SpanStyle(fontWeight = FontWeight.Medium)) { append(term) }
-                    if (bangla.isNotBlank()) {
-                        withStyle(SpanStyle(color = muted)) {
-                            append(" (")
-                            append(bangla.bn())
-                            append(")")
-                        }
+    Text(
+        text = buildAnnotatedString {
+            terms.forEachIndexed { index, (rawTerm, bangla) ->
+                if (index > 0) append(", ")
+                val term = if (index == 0) rawTerm.replaceFirstChar { it.uppercase() } else rawTerm
+                withStyle(SpanStyle(fontWeight = FontWeight.Medium)) { append(term) }
+                if (bangla.isNotBlank()) {
+                    withStyle(SpanStyle(color = muted)) {
+                        append(" (")
+                        append(bangla.bn())
+                        append(")")
                     }
-                },
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-    }
+                }
+            }
+        },
+        style = MaterialTheme.typography.bodyLarge,
+        fontFamily = TimesNewRoman
+    )
 }
 
 /** Other particles of the same verb. Tapping one opens its popup. */
@@ -376,6 +384,7 @@ private fun RelatedList(items: List<WordEntity>, onClick: (WordEntity) -> Unit) 
                     }
                 },
                 style = MaterialTheme.typography.bodyLarge,
+                fontFamily = TimesNewRoman,
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onClick(item) }

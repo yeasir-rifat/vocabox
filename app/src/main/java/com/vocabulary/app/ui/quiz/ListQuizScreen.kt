@@ -1,5 +1,13 @@
 package com.vocabulary.app.ui.quiz
 
+import com.vocabulary.app.ui.components.AppIcons
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.border
+import androidx.compose.foundation.background
+import com.vocabulary.app.ui.theme.TimesNewRoman
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -76,19 +84,37 @@ internal fun ListQuizScreen(
                 state.timeLeftSec?.let { left ->
                     val low = left <= 30
                     Surface(
-                        shape = RoundedCornerShape(50),
+                        shape = MaterialTheme.shapes.small,
                         color = if (low) AppColors.danger.copy(alpha = 0.14f) else MaterialTheme.colorScheme.primaryContainer,
-                        modifier = Modifier.semantics {
-                            contentDescription = "Time left ${left / 60} minutes ${left % 60} seconds"
-                        }
+                        modifier = Modifier
+                            .height(40.dp)
+                            .semantics {
+                                contentDescription = "Time left ${left / 60} minutes ${left % 60} seconds"
+                            }
                     ) {
-                        Text(
-                            text = formatClock(left),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = if (low) AppColors.danger else MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
-                        )
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = 14.dp)) {
+                            Text(
+                                text = formatClock(left),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = if (low) AppColors.danger else MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                    Spacer(Modifier.width(Spacing.Compact))
+                }
+                // Submit sits next to the timer. Unanswered questions ask for a confirmation first.
+                Surface(
+                    onClick = { if (state.unanswered > 0) confirming = true else onSubmit() },
+                    shape = MaterialTheme.shapes.small,
+                    color = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .semantics { contentDescription = "Submit quiz" }
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(AppIcons.Check, contentDescription = null)
                     }
                 }
             }
@@ -115,30 +141,6 @@ internal fun ListQuizScreen(
                     question = question,
                     selected = state.answers[i],
                     onSelect = { option -> onSelect(i, option) }
-                )
-            }
-        }
-
-        // Bottom bar (sits above the navigation bar, which the root Scaffold draws below this screen)
-        Surface(color = MaterialTheme.colorScheme.surfaceContainer, tonalElevation = 0.dp) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(Spacing.Content),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(Spacing.Micro)
-            ) {
-                Button(
-                    onClick = { if (state.unanswered > 0) confirming = true else onSubmit() },
-                    shape = MaterialTheme.shapes.small,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp)
-                ) { Text("Submit quiz") }
-                Text(
-                    text = "${state.unanswered} questions unanswered",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -176,22 +178,13 @@ private fun ListQuestionCard(
             verticalArrangement = Arrangement.spacedBy(Spacing.Standard)
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.Standard)) {
-                Surface(
-                    shape = CircleShape,
+                Text(
+                    text = "$number",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .semantics { contentDescription = "Question $number" }
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = "$number",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                }
+                    modifier = Modifier.semantics { contentDescription = "Question $number" }
+                )
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     if (question.instruction.isNotBlank()) {
                         Text(
@@ -202,12 +195,14 @@ private fun ListQuestionCard(
                     }
                     Text(
                         text = question.prompt.bn(),
+                        fontFamily = TimesNewRoman,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     if (question.hint.isNotBlank()) {
                         Text(
                             text = question.hint.bn(),
+                            fontFamily = TimesNewRoman,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -252,14 +247,28 @@ private fun ListOptionRow(label: String, text: String, selected: Boolean, onClic
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Spacing.Standard)
         ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(if (selected) MaterialTheme.colorScheme.primary else Color.Transparent)
+                    .border(
+                        2.dp,
+                        if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                        CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                )
+            }
             Text(
                 text = text.bn(),
+                fontFamily = TimesNewRoman,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f)
             )

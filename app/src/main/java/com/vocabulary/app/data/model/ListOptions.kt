@@ -3,6 +3,9 @@ package com.vocabulary.app.data.model
 /** Which words to keep by reading state. */
 enum class ReadFilter { ALL, READ, UNREAD }
 
+/** How a tapped word of the Groupwise list opens. */
+enum class WordView { DETAILS, POPUP, SHEET }
+
 /** The order of the words on screen. */
 enum class WordOrder { A_TO_Z, RANDOM }
 
@@ -30,9 +33,11 @@ data class ListOptions(
     /** Whether the A-Z strip is drawn at the bottom. Hiding it never changes the filter. */
     val showStrip: Boolean = true,
     /** The same switch for the Flashcard page, where the strip is off by default. */
-    val cardsStrip: Boolean = false
+    val cardsStrip: Boolean = false,
+    /** How a word of a Groupwise list opens: its own page, a popup card, or a bottom sheet. */
+    val wordView: WordView = WordView.POPUP
 ) {
-    /** True when anything differs from the defaults. The seed and the strip switch do not count. */
+    /** True when anything differs from the defaults. The seed, the strip switch and the word view do not count. */
     val isActive: Boolean
         get() = read != ReadFilter.ALL ||
             favouriteOnly ||

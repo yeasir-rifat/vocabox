@@ -1,5 +1,7 @@
 package com.vocabulary.app.domain
 
+import com.vocabulary.app.ui.components.shortPartOfSpeech
+import com.vocabulary.app.ui.components.exampleLines
 import com.vocabulary.app.data.local.entity.WordEntity
 import com.vocabulary.app.data.model.QuizMode
 import com.vocabulary.app.data.model.WordType
@@ -201,13 +203,13 @@ object QuizGenerator {
         when (mode) {
             QuizMode.MEANING -> {
                 subject = word.word
-                hint = word.partOfSpeech
+                hint = "" // the part of speech is not shown in questions
                 correct = word.banglaMeaning
                 wrong = distractors(word, pools.plain, random, listOf(correct, word.word)) { it.banglaMeaning }
             }
             QuizMode.SYNONYM -> {
                 subject = word.word
-                hint = word.partOfSpeech
+                hint = "" // the part of speech is not shown in questions
                 correct = word.synonyms.random(random)
                 wrong = distractors(
                     word, pools.plain, random,
@@ -217,7 +219,7 @@ object QuizGenerator {
             }
             QuizMode.ANTONYM -> {
                 subject = word.word
-                hint = word.partOfSpeech
+                hint = "" // the part of speech is not shown in questions
                 correct = word.antonyms.random(random)
                 wrong = distractors(
                     word, pools.plain, random,
@@ -313,26 +315,54 @@ object QuizGenerator {
             "\\b" + Regex.escape(head) + "\\s+" + Regex.escape(parts.last()) + "\\b",
             RegexOption.IGNORE_CASE
         )
-        val match = pattern.find(word.example) ?: return null
-        val sentence = word.example.replaceRange(match.range, match.value.substring(0, head.length) + " ____")
+        val example = word.exampleLines().firstOrNull { pattern.containsMatchIn(it) } ?: return null
+        val match = pattern.find(example) ?: return null
+        val sentence = example.replaceRange(match.range, match.value.substring(0, head.length) + " ____")
         return PrepositionBlank(sentence, preposition)
     }
 
+    /**
+     * The explanation shown after an answer. **Double asterisks** mark bold text:
+     *
+     *     **Frugal** (adj.) = মিতব্যয়ী, স্বল্পব্যয়ী
+     *     (Careful about spending money)
+     *     **Synonyms:** thrifty (সঞ্চয়ী), economical (মিতব্যয়ী)
+     *     **Antonyms:** extravagant (অমিতব্যয়ী)
+     *     **Examples**
+     *     \u2022 Living a **frugal** life helped him save.
+     */
     private fun explanationFor(word: WordEntity): String {
         val lines = ArrayList<String>()
-        val pos = word.partOfSpeech.trim()
+        val pos = word.partOfSpeech.shortPartOfSpeech()
+        val bangla = word.banglaMeaning.split(';', ',').map { it.trim() }.filter { it.isNotEmpty() }.joinToString(", ")
         lines += buildString {
-            append(word.word)
+            append("**").append(word.word.replaceFirstChar { it.uppercase() }).append("**")
             if (pos.isNotEmpty()) append(" ($pos)")
-            if (word.banglaMeaning.isNotBlank()) append(" \u2014 ").append(word.banglaMeaning)
+            if (bangla.isNotEmpty()) append(" = ").append(bangla)
         }
-        if (word.englishMeaning.isNotBlank()) lines += "Meaning: ${word.englishMeaning}"
-        if (word.example.isNotBlank()) lines += "Example: \u201C${word.example}\u201D"
+        if (word.englishMeaning.isNotBlank()) {
+            lines += "(${word.englishMeaning.trim().replaceFirstChar { it.uppercase() }})"
+        }
         withBangla(word.synonyms, word.synonymsBn).takeIf { it.isNotEmpty() }
-            ?.let { lines += "Synonyms: $it" }
+            ?.let { lines += "**Synonyms:** $it" }
         withBangla(word.antonyms, word.antonymsBn).takeIf { it.isNotEmpty() }
-            ?.let { lines += "Antonyms: $it" }
+            ?.let { lines += "**Antonyms:** $it" }
+        val examples = word.exampleLines()
+        if (examples.isNotEmpty()) {
+            lines += "**Examples**"
+            examples.forEach { lines += "\u2022 ${boldWord(it, word.word)}" }
+        }
         return lines.joinToString("\n")
+    }
+
+    /** Marks the given word (also with an ending, like "abandoned") in an example as bold. */
+    private fun boldWord(example: String, word: String): String {
+        val target = word.trim()
+        if (target.isEmpty()) return example
+        val m = Regex("\\b" + Regex.escape(target) + "\\w*", RegexOption.IGNORE_CASE).find(example)
+            ?: Regex(Regex.escape(target), RegexOption.IGNORE_CASE).find(example)
+            ?: return example
+        return example.replaceRange(m.range, "**" + m.value + "**")
     }
 
     private fun withBangla(items: List<String>, bangla: List<String>): String =

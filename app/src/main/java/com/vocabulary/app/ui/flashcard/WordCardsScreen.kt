@@ -198,20 +198,6 @@ private fun CardsPager(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.align(Alignment.Center)
             )
-            if (currentWord != null) {
-                val isBookmarked = currentWord.id in bookmarkedIds
-                IconButton(
-                    onClick = { onToggleBookmark(currentWord.id) },
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                ) {
-                    Icon(
-                        imageVector = if (isBookmarked) AppIcons.StarFilled else AppIcons.Star,
-                        contentDescription = if (isBookmarked) "Remove bookmark" else "Add bookmark",
-                        tint = if (isBookmarked) MaterialTheme.colorScheme.secondary
-                        else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
         }
 
         Box(modifier = Modifier.weight(1f)) {
@@ -233,7 +219,9 @@ private fun CardsPager(
                         word = word,
                         flipped = flipped,
                         onFlip = { flipped = !flipped },
-                        onSpeak = onSpeak
+                        onSpeak = onSpeak,
+                        isBookmarked = word.id in bookmarkedIds,
+                        onToggleBookmark = { onToggleBookmark(word.id) }
                     )
                 }
             }

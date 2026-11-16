@@ -449,13 +449,13 @@ class PaperLayout(context: Context) {
             h += 4f
             val pad = 5f
             val ex = SpannableStringBuilder()
-            q.explanation.lines().filter { it.isNotBlank() }.forEachIndexed { idx, ln ->
+            q.explanation.lines().filter { it.isNotBlank() }.map { it.replace("**", "") }.forEachIndexed { idx, ln ->
                 if (idx > 0) ex.append('\n')
                 val start = ex.length
                 ex.append(ln)
                 val boldEnd = if (idx == 0) ex.length else {
                     val colon = ln.indexOf(':')
-                    if (colon in 1..12) start + colon + 1 else start
+                    if (colon in 1..12) start + colon + 1 else if (ln == "Examples") ex.length else start
                 }
                 if (boldEnd > start) ex.setSpan(StyleSpan(Typeface.BOLD), start, boldEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
