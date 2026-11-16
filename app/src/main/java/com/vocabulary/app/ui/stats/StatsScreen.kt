@@ -299,11 +299,6 @@ private fun WeeklyActivityChart(state: StatsUiState) {
         maxValue = maxOf(values.max(), state.goal.toFloat(), 1f),
         valueLabel = { "${it.toInt()}" }
     )
-    Text(
-        text = "Dark bars mean the daily goal of ${state.goal} was reached.",
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
 }
 
 @Composable
@@ -319,11 +314,6 @@ private fun AccuracyChart(state: StatsUiState) {
         highlighted = values.map { it >= 80f },
         maxValue = 100f,
         valueLabel = { "${it.toInt()}" }
-    )
-    Text(
-        text = "Percent of correct answers per day. Dark bars are 80% or higher.",
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }
 

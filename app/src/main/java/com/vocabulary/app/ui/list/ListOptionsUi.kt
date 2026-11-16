@@ -62,6 +62,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -108,35 +109,19 @@ fun ListSummaryRow(
     modifier: Modifier = Modifier,
     filters: WordFilters = WordFilters()
 ) {
-    Surface(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.small,
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-    ) {
-        Row(
-            modifier = Modifier
-                .heightIn(min = 40.dp)
-                .padding(horizontal = Spacing.Standard, vertical = Spacing.Compact),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = options.summary(resultCount, filters),
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (options.isActive || filters.isActive) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                imageVector = AppIcons.Settings,
-                contentDescription = "List settings",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
+    Text(
+        text = options.summary(resultCount, filters),
+        style = MaterialTheme.typography.bodyMedium,
+        color = if (options.isActive || filters.isActive) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = Spacing.Compact)
+    )
 }
 
 /**

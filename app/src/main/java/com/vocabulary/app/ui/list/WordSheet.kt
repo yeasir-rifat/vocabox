@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,6 +22,7 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -75,7 +77,14 @@ fun WordSheet(
 
     val pagerState = rememberPagerState(initialPage = startIndex.coerceIn(0, words.lastIndex)) { words.size }
     // One resting position only (the height is driven below), so Material's own 50% stop is skipped.
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    // Material's own drag gesture is vetoed (the installed material3 has no sheetGesturesEnabled
+    // parameter): the sheet may only go to Hidden when close() asks for it. Our own handle/content
+    // drag logic below drives the height instead.
+    var allowHide by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { it != SheetValue.Hidden || allowHide }
+    )
     val scope = rememberCoroutineScope()
     val currentWords by rememberUpdatedState(words)
     val currentOnShown by rememberUpdatedState(onWordShown)
@@ -100,6 +109,7 @@ fun WordSheet(
     )
 
     fun close() {
+        allowHide = true
         scope.launch { sheetState.hide() }.invokeOnCompletion { currentOnDismiss() }
     }
 
@@ -141,7 +151,6 @@ fun WordSheet(
         onDismissRequest = onDismiss,
         modifier = modifier,
         sheetState = sheetState,
-        sheetGesturesEnabled = false,
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         contentColor = MaterialTheme.colorScheme.onSurface,
         dragHandle = {

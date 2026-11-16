@@ -22,7 +22,9 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -161,51 +163,85 @@ fun GroupsScreen(
 @Composable
 private fun GroupCard(group: WordGroup, readCount: Int, onOpen: () -> Unit, onQuiz: () -> Unit) {
     val total = group.words.size
+    val progress = if (total == 0) 0f else readCount / total.toFloat()
+    val done = total > 0 && readCount >= total
     AppCard(modifier = Modifier.fillMaxWidth(), onClick = onOpen) {
-        Column(
-            modifier = Modifier.padding(Spacing.Content),
-            verticalArrangement = Arrangement.spacedBy(Spacing.Standard)
+        Row(
+            modifier = Modifier.padding(horizontal = Spacing.Card, vertical = Spacing.Content),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.Content)
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = group.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = if (total == 1) "1 word" else "$total words",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            LinearProgressIndicator(
-                progress = { if (total == 0) 0f else readCount / total.toFloat() },
+            // Progress ring with the group number inside.
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 6.dp)
-                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(50))
+                    .size(56.dp)
                     .semantics { contentDescription = "$readCount of $total read" },
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                strokeCap = StrokeCap.Round,
-                gapSize = 0.dp,
-                drawStopIndicator = {}
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
+                    strokeWidth = 4.dp,
+                    strokeCap = StrokeCap.Round,
+                    gapSize = 0.dp
+                )
+                if (done) {
+                    Icon(
+                        imageVector = AppIcons.Check,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                } else {
+                    Text(
+                        text = if (group.isAppendix) "A" else "${group.number}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(Spacing.Micro)
+            ) {
                 Text(
-                    text = "$readCount / $total read",
+                    text = when {
+                        group.isAppendix -> "Appendix"
+                        group.range.isNotEmpty() -> group.range
+                        else -> "Group ${group.number}"
+                    },
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = buildString {
+                        if (!group.isAppendix && group.range.isNotEmpty()) append("Group ${group.number} \u00B7 ")
+                        append(if (total == 1) "1 word" else "$total words")
+                        append(" \u00B7 $readCount read")
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.weight(1f)
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
-                OutlinedButton(
-                    onClick = onQuiz,
-                    shape = MaterialTheme.shapes.small,
-                    border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-                    modifier = Modifier
-                        .heightIn(min = Spacing.Target)
-                        .semantics { contentDescription = "Quiz ${group.title}" }
-                ) { Text("Quiz", fontWeight = FontWeight.Bold) }
+            }
+
+            FilledTonalIconButton(
+                onClick = onQuiz,
+                modifier = Modifier
+                    .size(Spacing.Target)
+                    .semantics { contentDescription = "Quiz ${group.title}" },
+                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                    contentColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Icon(AppIcons.Pencil, contentDescription = null)
             }
         }
     }
