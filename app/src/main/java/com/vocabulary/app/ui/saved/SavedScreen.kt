@@ -197,7 +197,7 @@ fun SavedScreen(
                 sheetWords
             } else {
                 val pool = (bookmarks.orEmpty() + mistakes.orEmpty().map { it.word }).associateBy { it.id }
-                sheetIds.mapNotNull { pool[it] }
+                sheetIds.toList().mapNotNull { pool[it] }
             }
             val loaded = bookmarks != null && mistakes != null
             when {
