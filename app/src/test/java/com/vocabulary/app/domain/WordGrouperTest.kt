@@ -30,8 +30,9 @@ class WordGrouperTest {
         val groups = WordGrouper.group(words, GroupOrder.ALPHABETICAL, 1)
         val all = groups.flatMap { it.words.map { w -> w.word } }
         assertEquals(all.sorted(), all)
-        assertEquals("W01 – W20", groups.first().range)
-        assertEquals("Group 1 · W01 – W20", groups.first().title)
+        // The range label shows the first two letters of the first and last word: w01 -> "W0", w20 -> "W2".
+        assertEquals("W0 – W2", groups.first().range)
+        assertEquals("Group 1 · W0 – W2", groups.first().title)
     }
 
     @Test
