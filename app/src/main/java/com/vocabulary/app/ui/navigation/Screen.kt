@@ -24,6 +24,7 @@ sealed class Screen(val route: String) {
     data object WordList : Screen("words/list")
     data object WordCards : Screen("words/cards")
     data object Stats : Screen("stats")
+    data object Admin : Screen("admin")
     data object Groups : Screen("groups")
     data object GroupDetail : Screen("groups/{index}") {
         const val ARG_INDEX = "index"

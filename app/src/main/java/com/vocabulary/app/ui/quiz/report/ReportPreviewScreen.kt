@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -25,9 +26,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.fillMaxHeight
+import com.vocabulary.app.ui.components.AppCard
+import com.vocabulary.app.ui.components.SegmentedControl
+import com.vocabulary.app.ui.components.SettingsLabel
 import com.vocabulary.app.ui.components.AppIcons
 import com.vocabulary.app.ui.components.ExamHeaderBar
 import com.vocabulary.app.ui.components.ExamIconButton
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -177,7 +182,7 @@ fun ReportPreviewScreen(
             onDismissRequest = { showSheet = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ) {
-            CustomizeSheet(options, summary, onOptionsChange)
+            CustomizeSheet(options, summary, onOptionsChange, onClose = { showSheet = false })
         }
     }
 }
@@ -205,11 +210,17 @@ private fun PagePreview(page: PaperPage) {
 
 // ---- Customize sheet --------------------------------------------------------------------
 
+/**
+ * Settings panel. A fixed header ("Paper settings" + Done) stays on top while the groups scroll:
+ * Content, Paper, Layout, Heading and Marking. Every choice with a few fixed values is a segmented
+ * control, so the current value is always visible and one tap changes it.
+ */
 @Composable
 private fun CustomizeSheet(
     options: ReportOptions,
     summary: QuizSummary,
-    onChange: (ReportOptions) -> Unit
+    onChange: (ReportOptions) -> Unit,
+    onClose: () -> Unit
 ) {
     var title by rememberSaveable { mutableStateOf(options.title) }
     var group by rememberSaveable { mutableStateOf(options.groupText) }
@@ -218,151 +229,151 @@ private fun CustomizeSheet(
     val paper = !statsOnly
     val answersShown = paper && options.paperType != PaperType.QUESTIONS
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.92f)
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = Spacing.Content)
-            .padding(bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        Text("Settings", style = MaterialTheme.typography.titleLarge)
-
-        SheetLabel("Content")
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(
-                selected = statsOnly,
-                onClick = { onChange(options.copy(content = ReportContent.STATS_ONLY)) },
-                label = { Text("Result statistics only") }
-            )
-            FilterChip(
-                selected = paper,
-                onClick = { onChange(options.copy(content = ReportContent.PAPER)) },
-                label = { Text("MCQ paper") }
-            )
+    Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(0.92f)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = Spacing.Content, end = Spacing.Compact, bottom = Spacing.Compact),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text("Paper settings", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            }
+            TextButton(onClick = onClose) { Text("Done", fontWeight = FontWeight.Bold) }
         }
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
-        if (paper) {
-            SheetLabel("Paper")
-            RadioRow("Questions only", options.paperType == PaperType.QUESTIONS) {
-                onChange(options.copy(paperType = PaperType.QUESTIONS))
-            }
-            RadioRow("Questions + answers", options.paperType == PaperType.WITH_ANSWERS) {
-                onChange(options.copy(paperType = PaperType.WITH_ANSWERS))
-            }
-            RadioRow("Questions + answers + detailed explanation", options.paperType == PaperType.WITH_EXPLANATION) {
-                onChange(options.copy(paperType = PaperType.WITH_EXPLANATION))
-            }
-            SwitchRow("Show my answers", options.showMyAnswers, enabled = answersShown) {
-                onChange(options.copy(showMyAnswers = it))
-            }
-
-            SheetLabel("Questions")
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = options.scope == PaperScope.ALL,
-                    onClick = { onChange(options.copy(scope = PaperScope.ALL)) },
-                    label = { Text("All (${summary.total})") }
-                )
-                FilterChip(
-                    selected = options.scope == PaperScope.WRONG_ONLY,
-                    onClick = { onChange(options.copy(scope = PaperScope.WRONG_ONLY)) },
-                    label = { Text("Wrong only (${summary.wrong.size})") }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = Spacing.Content, vertical = Spacing.Content),
+            verticalArrangement = Arrangement.spacedBy(Spacing.Section)
+        ) {
+            SheetGroup("Content") {
+                SegmentedControl(
+                    options = listOf(ReportContent.STATS_ONLY, ReportContent.PAPER),
+                    selected = options.content,
+                    label = { if (it == ReportContent.PAPER) "MCQ paper" else "Statistics only" },
+                    onSelect = { onChange(options.copy(content = it)) }
                 )
             }
 
-            SheetLabel("Columns")
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = options.columns == 2,
-                    onClick = { onChange(options.copy(columns = 2)) },
-                    label = { Text("Two columns") }
-                )
-                FilterChip(
-                    selected = options.columns == 1,
-                    onClick = { onChange(options.copy(columns = 1)) },
-                    label = { Text("One column") }
-                )
-            }
+            if (paper) {
+                SheetGroup("Paper") {
+                    SegmentedControl(
+                        options = PaperType.entries,
+                        selected = options.paperType,
+                        label = {
+                            when (it) {
+                                PaperType.QUESTIONS -> "Questions"
+                                PaperType.WITH_ANSWERS -> "+ Answers"
+                                PaperType.WITH_EXPLANATION -> "+ Explanation"
+                            }
+                        },
+                        onSelect = { onChange(options.copy(paperType = it)) }
+                    )
+                    SwitchRow("Show my answers", options.showMyAnswers, enabled = answersShown) {
+                        onChange(options.copy(showMyAnswers = it))
+                    }
+                }
 
-            SheetLabel("Text size")
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ReportTextSize.entries.forEach { size ->
-                    FilterChip(
-                        selected = options.textSize == size,
-                        onClick = { onChange(options.copy(textSize = size)) },
-                        label = { Text(size.name.lowercase().replaceFirstChar { it.uppercase() }) }
+                SheetGroup("Layout") {
+                    FieldTitle("Questions")
+                    SegmentedControl(
+                        options = PaperScope.entries,
+                        selected = options.scope,
+                        label = {
+                            if (it == PaperScope.ALL) "All (${summary.total})"
+                            else "Wrong only (${summary.wrong.size})"
+                        },
+                        onSelect = { onChange(options.copy(scope = it)) }
+                    )
+                    FieldTitle("Columns")
+                    SegmentedControl(
+                        options = listOf(1, 2),
+                        selected = options.columns,
+                        label = { if (it == 1) "One column" else "Two columns" },
+                        onSelect = { onChange(options.copy(columns = it)) }
+                    )
+                    FieldTitle("Text size")
+                    SegmentedControl(
+                        options = ReportTextSize.entries,
+                        selected = options.textSize,
+                        label = { it.name.lowercase().replaceFirstChar { c -> c.uppercase() } },
+                        onSelect = { onChange(options.copy(textSize = it)) }
                     )
                 }
             }
-        }
 
-        HorizontalDivider()
-        SheetLabel("Heading")
-        OutlinedTextField(
-            value = title,
-            onValueChange = { title = it; onChange(options.copy(title = it)) },
-            label = { Text("Exam / category name") },
-            placeholder = { Text(defaultReportTitle(summary)) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = group,
-            onValueChange = { group = it; onChange(options.copy(groupText = it)) },
-            label = { Text("Group no. / other note") },
-            placeholder = { Text(summary.groupLabel ?: "e.g. Group 5") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-        SwitchRow("Logo", options.showLogo) { onChange(options.copy(showLogo = it)) }
-        SwitchRow("Date", options.showDate) { onChange(options.copy(showDate = it)) }
-        SwitchRow("Statistics table", options.showStats || statsOnly, enabled = paper) {
-            onChange(options.copy(showStats = it))
-        }
-
-        HorizontalDivider()
-        SheetLabel("Marking")
-        OutlinedTextField(
-            value = penalty,
-            onValueChange = { v ->
-                if (v.matches(Regex("""\d{0,2}(\.\d{0,2})?"""))) {
-                    penalty = v
-                    onChange(options.copy(negativeMark = (v.toFloatOrNull() ?: 0f).coerceAtMost(10f)))
+            SheetGroup("Heading") {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it; onChange(options.copy(title = it)) },
+                    label = { Text("Exam / category name") },
+                    placeholder = { Text(defaultReportTitle(summary)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = group,
+                    onValueChange = { group = it; onChange(options.copy(groupText = it)) },
+                    label = { Text("Group no. / other note") },
+                    placeholder = { Text(summary.groupLabel ?: "e.g. Group 5") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                SwitchRow("Logo", options.showLogo) { onChange(options.copy(showLogo = it)) }
+                SwitchRow("Date", options.showDate) { onChange(options.copy(showDate = it)) }
+                SwitchRow("Statistics table", options.showStats || statsOnly, enabled = paper) {
+                    onChange(options.copy(showStats = it))
                 }
-            },
-            label = { Text("Negative mark per wrong answer") },
-            supportingText = { Text("1 mark per correct answer. Unanswered questions are not penalised.") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
+            }
+
+            SheetGroup("Marking") {
+                OutlinedTextField(
+                    value = penalty,
+                    onValueChange = { v ->
+                        if (v.matches(Regex("""\d{0,2}(\.\d{0,2})?"""))) {
+                            penalty = v
+                            onChange(options.copy(negativeMark = (v.toFloatOrNull() ?: 0f).coerceAtMost(10f)))
+                        }
+                    },
+                    label = { Text("Negative mark per wrong answer") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
+}
+
+/** A captioned card that holds one group of settings. */
+@Composable
+private fun SheetGroup(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.Compact)) {
+        SettingsLabel(title)
+        AppCard(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Spacing.Content),
+                verticalArrangement = Arrangement.spacedBy(Spacing.Standard),
+                content = content
+            )
+        }
     }
 }
 
 @Composable
-private fun SheetLabel(text: String) {
+private fun FieldTitle(text: String) {
     Text(
-        text = text.uppercase(),
+        text = text,
         style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.primary,
-        fontWeight = FontWeight.Bold
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = 2.dp)
     )
-}
-
-@Composable
-private fun RadioRow(label: String, selected: Boolean, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.small)
-            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RadioButton(selected = selected, onClick = null, modifier = Modifier.padding(end = 12.dp))
-        Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(vertical = 10.dp))
-    }
 }
 
 @Composable

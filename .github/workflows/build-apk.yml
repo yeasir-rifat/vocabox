@@ -111,6 +111,7 @@ jobs:
           gradle :app:assembleRelease --stacktrace
           -PappVersionCode=${{ env.VERSION_CODE }}
           -PappVersionName=${{ env.VERSION_NAME }}
+          -PadminEmails="${{ secrets.ADMIN_EMAILS }}"
 
       - name: Verify signature and name the APK
         if: github.event_name != 'pull_request'

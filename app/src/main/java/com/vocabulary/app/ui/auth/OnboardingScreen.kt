@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -43,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -99,6 +102,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
     val scope = rememberCoroutineScope()
     val isLast = pagerState.currentPage == pages.lastIndex
     val scheme = MaterialTheme.colorScheme
+    val dark = scheme.background.luminance() < 0.5f
 
     BackHandler(enabled = pagerState.currentPage > 0) {
         scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
@@ -109,7 +113,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    listOf(scheme.primary.copy(alpha = 0.14f), scheme.background, scheme.background)
+                    listOf(scheme.primaryContainer.copy(alpha = if (dark) 0.55f else 1f), scheme.background, scheme.background)
                 )
             )
     ) {
@@ -148,7 +152,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                         val active = i == pagerState.currentPage
                         val width by animateDpAsState(if (active) 26.dp else 8.dp, tween(260), label = "dotWidth")
                         val color by animateColorAsState(
-                            if (active) scheme.primary else scheme.outlineVariant, tween(260), label = "dotColor"
+                            if (active) scheme.primary else scheme.onSurfaceVariant.copy(alpha = 0.55f), tween(260), label = "dotColor"
                         )
                         Box(Modifier.height(8.dp).width(width).clip(CircleShape).background(color))
                     }
@@ -170,26 +174,32 @@ fun OnboardingScreen(onFinish: () -> Unit) {
 
 @Composable
 private fun IntroPageContent(page: IntroPage, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.fillMaxSize().padding(horizontal = Spacing.Section),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        HeroIllustration(icon = page.icon, chipIcon = page.chipIcon, chip = page.chip)
-        Spacer(Modifier.height(Spacing.Major))
-        Text(
-            text = page.title,
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.SemiBold,
-            textAlign = TextAlign.Center
-        )
-        Spacer(Modifier.height(Spacing.Standard))
-        Text(
-            text = page.body,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
-        )
+    // The Box centers the content when there is room; the Column scrolls when there is not
+    // (small phones, large font size), so the illustration is never cut off.
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = Spacing.Section),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            HeroIllustration(icon = page.icon, chipIcon = page.chipIcon, chip = page.chip)
+            Spacer(Modifier.height(Spacing.Major))
+            Text(
+                text = page.title,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(Spacing.Standard))
+            Text(
+                text = page.body,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 
@@ -197,6 +207,7 @@ private fun IntroPageContent(page: IntroPage, modifier: Modifier = Modifier) {
 @Composable
 private fun HeroIllustration(icon: ImageVector, chipIcon: ImageVector, chip: String) {
     val scheme = MaterialTheme.colorScheme
+    val dark = scheme.background.luminance() < 0.5f
     val transition = rememberInfiniteTransition(label = "hero")
     val pulse by transition.animateFloat(
         initialValue = 1f, targetValue = 1.07f,
@@ -209,11 +220,20 @@ private fun HeroIllustration(icon: ImageVector, chipIcon: ImageVector, chip: Str
 
     Box(modifier = Modifier.size(width = 260.dp, height = 250.dp), contentAlignment = Alignment.TopCenter) {
         Box(
-            modifier = Modifier.size(210.dp).scale(pulse).clip(CircleShape).background(scheme.primary.copy(alpha = 0.07f)),
+            modifier = Modifier
+                .size(210.dp)
+                .scale(pulse)
+                .clip(CircleShape)
+                .background(scheme.primaryContainer.copy(alpha = 0.6f))
+                .border(1.dp, scheme.primary.copy(alpha = 0.18f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Box(
-                modifier = Modifier.size(150.dp).clip(CircleShape).background(scheme.primary.copy(alpha = 0.13f)),
+                modifier = Modifier
+                    .size(150.dp)
+                    .clip(CircleShape)
+                    .background(scheme.primaryContainer)
+                    .border(1.dp, scheme.primary.copy(alpha = 0.30f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
@@ -229,10 +249,11 @@ private fun HeroIllustration(icon: ImageVector, chipIcon: ImageVector, chip: Str
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 4.dp)
                 .graphicsLayer { translationY = floatY.dp.toPx() }
-                .border(1.dp, scheme.outlineVariant, CircleShape),
+                .border(1.dp, scheme.outline, CircleShape),
             shape = CircleShape,
-            color = scheme.surfaceContainer,
-            shadowElevation = 6.dp
+            // Dark theme: a lighter chip, because a shadow cannot lift it off a dark background.
+            color = if (dark) scheme.surfaceContainerHigh else scheme.surfaceContainer,
+            shadowElevation = if (dark) 0.dp else 6.dp
         ) {
             Row(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),

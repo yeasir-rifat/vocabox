@@ -1,6 +1,7 @@
 package com.vocabulary.app.ui.quiz
 
 import androidx.compose.material3.FilledTonalIconButton
+import com.vocabulary.app.ui.theme.explanationMarkup
 import com.vocabulary.app.ui.theme.markup
 import com.vocabulary.app.ui.theme.TimesNewRoman
 import com.vocabulary.app.ui.components.AppProgressBar
@@ -216,12 +217,7 @@ private fun QuizQuestionContent(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                ) {
+                Box(modifier = Modifier.padding(vertical = 6.dp)) {
                     Text(
                         text = q.mode.title(),
                         style = MaterialTheme.typography.labelLarge,
@@ -236,14 +232,12 @@ private fun QuizQuestionContent(
                     val timerColor = if (urgent) AppColors.danger else MaterialTheme.colorScheme.onSurfaceVariant
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(50))
-                            .background(timerColor.copy(alpha = 0.10f))
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                            .padding(horizontal = 4.dp, vertical = 6.dp)
                             .semantics { contentDescription = "${state.timeLeft} seconds left" }
                     ) {
                         Text(
                             text = "${state.timeLeft}s",
-                            style = MaterialTheme.typography.labelLarge,
+                            style = MaterialTheme.typography.labelLarge.copy(fontSize = 22.sp, lineHeight = 28.sp),
                             fontWeight = FontWeight.Bold,
                             color = timerColor
                         )
@@ -393,9 +387,9 @@ private fun QuizQuestionContent(
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                     q.explanation.lines().filter { it.isNotBlank() }.forEachIndexed { i, line ->
                         Text(
-                            text = line.markup(),
+                            text = line.explanationMarkup(),
                             fontFamily = TimesNewRoman,
-                            style = if (i == 0) MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp, lineHeight = 30.sp)
+                            style = if (i == 0) MaterialTheme.typography.titleLarge.copy(fontSize = 19.sp, lineHeight = 27.sp)
                             else MaterialTheme.typography.bodyLarge.copy(lineHeight = 26.sp),
                             textAlign = TextAlign.Start,
                             modifier = Modifier.fillMaxWidth()
@@ -914,7 +908,7 @@ private fun ExplanationBlock(explanation: String) {
         )
         lines.forEachIndexed { i, line ->
             Text(
-                text = line.markup(),
+                text = line.explanationMarkup(),
                 fontFamily = TimesNewRoman,
                 style = if (i == 0) MaterialTheme.typography.titleSmall else MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant

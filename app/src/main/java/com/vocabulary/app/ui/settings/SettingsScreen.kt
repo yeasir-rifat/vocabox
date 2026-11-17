@@ -60,6 +60,7 @@ import com.vocabulary.app.ui.components.SettingsDivider
 import com.vocabulary.app.ui.components.SettingsGroup
 import com.vocabulary.app.ui.components.SettingsLabel
 import com.vocabulary.app.ui.components.ProfileCard
+import com.vocabulary.app.data.remote.AdminConfig
 import com.vocabulary.app.data.remote.SyncState
 import com.vocabulary.app.ui.components.SettingsRow
 import com.vocabulary.app.ui.components.SettingsValue
@@ -78,6 +79,7 @@ private fun ThemeMode.label(): String = when (this) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    onOpenAdmin: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
@@ -206,6 +208,21 @@ fun SettingsScreen(
                     icon = AppIcons.Info,
                     title = "About application",
                     trailing = { SettingsValue(appVersion(context), showChevron = false) }
+                )
+                SettingsDivider()
+                SettingsRow(
+                    icon = AppIcons.Shield,
+                    title = "Admin login",
+                    subtitle = "Update the word list from a words.json file",
+                    onClick = {
+                        if (AdminConfig.isAdmin(state.userEmail)) onOpenAdmin()
+                        else scope.launch {
+                            snackbarHostState.showSnackbar(
+                                if (AdminConfig.isConfigured) "This account (${state.userEmail}) is not an admin."
+                                else "No admin account is set up in this build."
+                            )
+                        }
+                    }
                 )
                 SettingsDivider()
                 SettingsRow(

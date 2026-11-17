@@ -508,13 +508,11 @@ private fun CardBack(
                 .padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Meaning block: the Bangla meaning (the English one is in the header).
+            // The Bangla meaning as plain text, no background (the English one is in the header).
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
-                    .padding(16.dp),
+                    .padding(vertical = 4.dp),
             ) {
                 Text(
                     text = bangla.bn(),

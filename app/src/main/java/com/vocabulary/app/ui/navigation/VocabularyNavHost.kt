@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.vocabulary.app.data.model.DeckSource
+import com.vocabulary.app.ui.admin.AdminScreen
 import com.vocabulary.app.ui.detail.WordDetailScreen
 import com.vocabulary.app.ui.home.HomeScreen
 import com.vocabulary.app.ui.flashcard.FlashcardsScreen
@@ -83,7 +84,10 @@ fun VocabularyNavHost(
             )
         }
         composable(Screen.Settings.route) {
-            SettingsScreen()
+            SettingsScreen(onOpenAdmin = { navController.navigate(Screen.Admin.route) })
+        }
+        composable(Screen.Admin.route) {
+            AdminScreen(onBack = { navController.popBackStack() })
         }
         composable(
             route = Screen.Flashcards.route,

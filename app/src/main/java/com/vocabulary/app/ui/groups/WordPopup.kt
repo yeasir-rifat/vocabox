@@ -48,6 +48,7 @@ import com.vocabulary.app.ui.components.AppIcons
 import com.vocabulary.app.ui.components.shortPartOfSpeech
 import com.vocabulary.app.ui.theme.Spacing
 import com.vocabulary.app.ui.theme.bn
+import com.vocabulary.app.ui.theme.bnMatched
 
 /** Bangla meanings of one entry, joined for one line: "পরোপকারী; দয়ালু" becomes "পরোপকারী, দয়ালু". */
 internal fun WordEntity.banglaMeaningLine(): String =
@@ -252,45 +253,28 @@ internal fun PopupHeader(
             ) { append(pos) }
         }
     }
-    if (word.isPhrase()) {
-        // Long phrase: actions on their own row so the phrase can use the full width.
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = Spacing.Card, end = Spacing.Compact, top = Spacing.Compact, bottom = Spacing.Standard)
+    // Word (or phrase) on the left, speaker and star at the top right, the English meaning under both.
+    // There is no close button: tap outside the card (or swipe the sheet down) to close.
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = Spacing.Card, end = Spacing.Compact, top = Spacing.Compact, bottom = Spacing.Standard)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                HeaderActions(word, isBookmarked, onToggleBookmark, onSpeak, onClose)
-            }
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineSmall,
                 fontFamily = TimesNewRoman,
-                modifier = Modifier.padding(end = Spacing.Compact)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = Spacing.Compact)
             )
-            HeaderMeaning(word, modifier = Modifier.padding(end = Spacing.Compact))
+            HeaderActions(word, isBookmarked, onToggleBookmark, onSpeak)
         }
-    } else {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = Spacing.Card, end = Spacing.Compact, top = Spacing.Compact, bottom = Spacing.Compact),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontFamily = TimesNewRoman
-                )
-                HeaderMeaning(word)
-            }
-            HeaderActions(word, isBookmarked, onToggleBookmark, onSpeak, onClose)
-        }
+        HeaderMeaning(word, modifier = Modifier.padding(end = Spacing.Compact))
     }
 }
 
@@ -312,8 +296,7 @@ private fun HeaderActions(
     word: WordEntity,
     isBookmarked: Boolean,
     onToggleBookmark: () -> Unit,
-    onSpeak: (String) -> Unit,
-    onClose: () -> Unit
+    onSpeak: (String) -> Unit
 ) {
     IconButton(onClick = { onSpeak(word.word) }) {
         Icon(
@@ -329,9 +312,6 @@ private fun HeaderActions(
             tint = if (isBookmarked) MaterialTheme.colorScheme.secondary
             else MaterialTheme.colorScheme.onSurfaceVariant
         )
-    }
-    IconButton(onClick = onClose) {
-        Icon(AppIcons.Close, contentDescription = "Close")
     }
 }
 
@@ -351,24 +331,28 @@ private fun PopupSection(title: String, content: @Composable () -> Unit) {
 /** "Forsake (পরিত্যাগ করা), desert (ত্যাগ করে যাওয়া), ...": one comma separated line, wrapping as needed. */
 @Composable
 internal fun TermList(terms: List<Pair<String, String>>) {
-    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    // English and Bangla share one colour. bnMatched() gives Kalpurush the same stroke thickness and
+    // headline height as Times New Roman (numbers in Fonts.kt), so the two scripts read as one line.
     Text(
         text = buildAnnotatedString {
             terms.forEachIndexed { index, (rawTerm, bangla) ->
                 if (index > 0) append(", ")
                 val term = if (index == 0) rawTerm.replaceFirstChar { it.uppercase() } else rawTerm
-                withStyle(SpanStyle(fontWeight = FontWeight.Medium)) { append(term) }
+                append(term)
                 if (bangla.isNotBlank()) {
-                    withStyle(SpanStyle(color = muted)) {
-                        append(" (")
-                        append(bangla.bn())
-                        append(")")
-                    }
+                    append(" (")
+                    append(bangla.bnMatched())
+                    append(")")
                 }
             }
         },
         // A little larger than the body text so the synonym and antonym lines read comfortably.
-        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 19.sp, lineHeight = 30.sp),
+        style = MaterialTheme.typography.bodyLarge.copy(
+            fontSize = 19.sp,
+            lineHeight = 30.sp,
+            fontWeight = FontWeight.Normal,
+            color = MaterialTheme.colorScheme.onSurface
+        ),
         fontFamily = TimesNewRoman
     )
 }

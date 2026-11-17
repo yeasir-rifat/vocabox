@@ -93,11 +93,32 @@ fun String.bn(): AnnotatedString {
     }
 }
 
+/**
+ * Bangla runs that sit next to regular-weight Times New Roman (synonym and antonym lines).
+ *
+ * Kalpurush's vertical stems are thinner than Times New Roman's (0.054 em against 0.081 em), but its
+ * wide curves and heavy headline line (matra) carry the weight, and rendered side by side the regular
+ * weight matches the English. Synthetic bold was tried and looked far too heavy, so the weight stays
+ * regular. Only the colour (same as English) and the size are matched; the size is a little below BANGLA_SCALE.
+ */
+const val BANGLA_MATCHED_SCALE = 0.93f
+
+fun String.bnMatched(): AnnotatedString {
+    val ranges = bengaliRanges(this)
+    if (ranges.isEmpty()) return AnnotatedString(this)
+    return buildAnnotatedString {
+        append(this@bnMatched)
+        ranges.forEach {
+            addStyle(SpanStyle(fontFamily = Kalpurush, fontSize = BANGLA_MATCHED_SCALE.em), it.first, it.last + 1)
+        }
+    }
+}
+
 /** Plain text of a string that uses **bold** markers. */
 fun String.stripMarkup(): String = replace("**", "")
 
 /** Text with **bold** markers: the markers are removed, the marked parts are bold, Bangla runs use Kalpurush. */
-fun String.markup(): AnnotatedString {
+fun String.markup(banglaScale: Float = BANGLA_SCALE): AnnotatedString {
     val plain = StringBuilder()
     val bold = ArrayList<IntRange>()
     var open = -1
@@ -114,6 +135,13 @@ fun String.markup(): AnnotatedString {
     return buildAnnotatedString {
         append(text)
         bold.forEach { addStyle(SpanStyle(fontWeight = FontWeight.Bold), it.first, it.last + 1) }
-        bengaliRanges(text).forEach { addStyle(SpanStyle(fontFamily = Kalpurush, fontSize = BANGLA_SCALE.em), it.first, it.last + 1) }
+        bengaliRanges(text).forEach { addStyle(SpanStyle(fontFamily = Kalpurush, fontSize = banglaScale.em), it.first, it.last + 1) }
     }
 }
+
+/**
+ * One line of a quiz explanation. The "Synonyms:" and "Antonyms:" lines carry Bangla meanings in
+ * brackets, which use the same smaller Bangla size as the synonym lines everywhere else.
+ */
+fun String.explanationMarkup(): AnnotatedString =
+    if (startsWith("**Synonyms:**") || startsWith("**Antonyms:**")) markup(BANGLA_MATCHED_SCALE) else markup()

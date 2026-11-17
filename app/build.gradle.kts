@@ -31,6 +31,10 @@ android {
         // CI passes -PappVersionCode / -PappVersionName so every build is a new, installable update.
         versionCode = (findProperty("appVersionCode") as String?)?.toIntOrNull() ?: 1
         versionName = (findProperty("appVersionName") as String?) ?: "1.0.0"
+        // Google accounts allowed to open Settings > Admin login (comma separated).
+        // Pass -PadminEmails=a@gmail.com,b@gmail.com (CI reads the ADMIN_EMAILS secret).
+        val adminEmails = (findProperty("adminEmails") as String?) ?: System.getenv("ADMIN_EMAILS") ?: ""
+        buildConfigField("String", "ADMIN_EMAILS", "\"${adminEmails.replace("\"", "")}\"")
     }
 
     signingConfigs {
@@ -66,6 +70,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     lint {
         // Lint runs in CI and its report is uploaded; fix warnings over time without blocking builds.

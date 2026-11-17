@@ -1,15 +1,21 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // The word list: any signed-in Google account can read it, nobody can change it from the app.
+    // The word list: any signed-in Google account can read it, only admin accounts can change it (from the app or from scripts).
     // You upload a new version with scripts/upload-words.mjs (the Admin SDK ignores these rules).
+    // Admin accounts (Settings > Admin login in the app) may also write. Put your Gmail below.
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['rifatplex@gmail.com'];
+    }
     match /meta/{doc} {
       allow read: if request.auth != null;
-      allow write: if false;
+      allow write: if isAdmin();
     }
     match /packs/{doc} {
       allow read: if request.auth != null;
-      allow write: if false;
+      allow write: if isAdmin();
     }
 
     // Optional: only specific accounts can read, replace `request.auth != null` above with:

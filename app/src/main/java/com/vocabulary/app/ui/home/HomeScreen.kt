@@ -178,6 +178,8 @@ private fun BrandHeader(onOpenStats: () -> Unit) {
             Text(
                 text = "Vocabox",
                 style = MaterialTheme.typography.headlineSmall,
+                // Same serif face as the "Aa" mark.
+                fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.Bold
             )
         }

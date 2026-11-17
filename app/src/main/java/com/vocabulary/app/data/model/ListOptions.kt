@@ -30,8 +30,8 @@ data class ListOptions(
     val type: WordType? = null,
     /** Keep only one level. null means every level. */
     val level: Int? = null,
-    /** Whether the A-Z strip is drawn at the bottom. Hiding it never changes the filter. */
-    val showStrip: Boolean = true,
+    /** Whether the A-Z strip is drawn at the right edge (off by default). Hiding it never changes the filter. */
+    val showStrip: Boolean = false,
     /** The same switch for the Flashcard page, where the strip is off by default. */
     val cardsStrip: Boolean = false,
     /** How a word of a Groupwise list opens: its own page, a popup card, or a bottom sheet. */

@@ -24,6 +24,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -41,6 +42,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -164,44 +168,44 @@ private fun WordDetailContent(
             )
         ) {
             Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = word.word,
-                            fontFamily = TimesNewRoman,
-                            style = MaterialTheme.typography.displaySmall
-                        )
-                        Text(
-                            text = word.partOfSpeech.shortPartOfSpeech(),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontStyle = FontStyle.Italic
-                        )
-                    }
+                // "obsolete adj." on one line (adj. small, right after the word), the English meaning below.
+                Text(
+                    text = buildAnnotatedString {
+                        append(word.word)
+                        val pos = word.partOfSpeech.shortPartOfSpeech()
+                        if (pos.isNotBlank()) {
+                            withStyle(
+                                SpanStyle(
+                                    fontSize = 18.sp,
+                                    fontStyle = FontStyle.Italic,
+                                    fontFamily = TimesNewRoman,
+                                    fontWeight = FontWeight.Normal
+                                )
+                            ) { append("  $pos") }
+                        }
+                    },
+                    fontFamily = TimesNewRoman,
+                    style = MaterialTheme.typography.displaySmall
+                )
+                if (word.englishMeaning.isNotBlank()) {
+                    Text(
+                        text = word.englishMeaning.trim().replaceFirstChar { it.uppercase() },
+                        fontFamily = TimesNewRoman,
+                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 19.sp, lineHeight = 28.sp)
+                    )
                 }
             }
         }
 
-        // Meaning
-        Section(title = "Meaning") {
-            AppCard(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = word.banglaMeaning.bn(),
-                        fontFamily = TimesNewRoman,
-                        style = MaterialTheme.typography.titleLarge.copy(lineHeight = 32.sp),
-                    )
-                    Text(
-                        text = word.englishMeaning,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontFamily = TimesNewRoman,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+        // Meaning: the Bangla meaning as plain text, no box.
+        if (word.banglaMeaning.isNotBlank()) {
+            Section(title = "Meaning") {
+                Text(
+                    text = word.banglaMeaning.bn(),
+                    fontFamily = TimesNewRoman,
+                    style = MaterialTheme.typography.titleLarge.copy(lineHeight = 32.sp),
+                    modifier = Modifier.padding(start = 4.dp)
+                )
             }
         }
 
@@ -214,29 +218,42 @@ private fun WordDetailContent(
         }
 
         if (word.example.isNotBlank()) {
-            Section(title = "Example") {
-                AppCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
+            // One box: "EXAMPLES" with the speaker on the right, a divider, then one bullet per example.
+            AppCard(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+                Column(modifier = Modifier.padding(start = 20.dp, end = 8.dp, top = 4.dp, bottom = 16.dp)) {
                     Row(
-                        modifier = Modifier.padding(start = 20.dp, top = 12.dp, bottom = 12.dp, end = 8.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        ExampleBullets(
-                            example = word.example,
-                            fontFamily = TimesNewRoman,
+                        Text(
+                            text = if (word.exampleLines().size > 1) "EXAMPLES" else "EXAMPLE",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier.weight(1f)
                         )
                         IconButton(onClick = { onSpeak(word.exampleLines().joinToString(" ")) }) {
                             Icon(
                                 AppIcons.Volume,
-                                contentDescription = "Read the example aloud"
+                                contentDescription = "Read the examples aloud",
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
+                    HorizontalDivider(
+                        modifier = Modifier.padding(end = 12.dp, bottom = 12.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                    ExampleBullets(
+                        example = word.example,
+                        fontFamily = TimesNewRoman,
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
                 }
             }
         }

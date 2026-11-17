@@ -38,7 +38,7 @@ fun WordSummary(
                     append(" ")
                     withStyle(
                         SpanStyle(
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Normal,
                             fontStyle = FontStyle.Italic,
                             color = posColor
@@ -46,7 +46,7 @@ fun WordSummary(
                     ) { append(word.partOfSpeech.shortPartOfSpeech()) }
                 }
             },
-            style = MaterialTheme.typography.titleMedium.copy(fontSize = 22.sp, lineHeight = 28.sp),
+            style = MaterialTheme.typography.titleMedium.copy(fontSize = 19.sp, lineHeight = 25.sp),
             fontFamily = TimesNewRoman,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -54,7 +54,7 @@ fun WordSummary(
         Text(
             text = word.banglaMeaning.bn(),
             fontFamily = TimesNewRoman,
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 17.sp, lineHeight = 26.sp),
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp, lineHeight = 23.sp),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

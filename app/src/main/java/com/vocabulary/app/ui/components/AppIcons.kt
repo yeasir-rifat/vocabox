@@ -134,6 +134,8 @@ object AppIcons {
         "M8 6 V4 a2 2 0 0 1 2 -2 h4 a2 2 0 0 1 2 2 v2"
     )
     val Download = icon("Download", "M12 3 v12", "M7 10 l5 5 5 -5", "M5 21 h14")
+    val Upload = icon("Upload", "M12 15 v-12", "M7 8 l5 -5 5 5", "M5 21 h14")
+    val Shield = icon("Shield", "M12 3 l8 3 v6 c0 5 -3.5 8 -8 9 c-4.5 -1 -8 -4 -8 -9 v-6 z", "M9 12 l2 2 4 -4")
     val Tune = icon("Tune", "M4 6 h8", circle(15f, 6f, 2.5f), "M18 6 h2", "M4 12 h2", circle(9f, 12f, 2.5f), "M12 12 h8", "M4 18 h9", circle(16f, 18f, 2.5f), "M19 18 h1")
     val Help = icon(
         "Help",
